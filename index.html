@@ -486,7 +486,12 @@ const MODULES = [
 <p>Esse conceito se chama <strong>domínio</strong>: um conjunto de computadores e usuários gerenciados centralmente, com regras de segurança compartilhadas. Todo domínio tem um nome, geralmente parecido com um site — por exemplo <code>empresa.local</code> ou <code>corp.empresa.com.br</code>.</p>
 <p>Por trás disso está o conceito de <strong>diretório</strong>: uma estrutura hierárquica, como uma árvore de pastas, onde cada "pasta" pode conter usuários, computadores, impressoras, grupos e outros objetos. Essa organização em árvore é o que dá nome ao "Active Directory" — um diretório ativo, que responde em tempo real a consultas de autenticação.</p>
 <h4>Por que isso importa no seu trabalho</h4>
-<p>No dia a dia de suporte, praticamente todo chamado de "não consigo acessar X" passa pelo AD: senha expirada, conta bloqueada, usuário sem permissão num grupo, política aplicada errada. Entender a estrutura do AD é a base para diagnosticar 80% dos problemas de acesso corporativo.</p>`},
+<p>No dia a dia de suporte, praticamente todo chamado de "não consigo acessar X" passa pelo AD: senha expirada, conta bloqueada, usuário sem permissão num grupo, política aplicada errada. Entender a estrutura do AD é a base para diagnosticar 80% dos problemas de acesso corporativo.</p><div style="margin-top:22px;padding:14px 18px;background:var(--surface2);border-radius:10px;border:1px solid var(--border2)">
+<div style="font-size:11px;color:var(--accent);font-family:var(--mono);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">📚 Fontes oficiais para aprofundar</div>
+<div style="font-size:12px;line-height:2;color:var(--muted)">
+<a href="https://learn.microsoft.com/en-us/training/paths/active-directory-domain-services/" target="_blank" style="color:var(--accent)">Trilha oficial: Active Directory Domain Services — Microsoft Learn</a><br>
+<a href="https://learn.microsoft.com/en-us/training/modules/introduction-to-ad-ds/" target="_blank" style="color:var(--accent)">Módulo: Introdução ao AD DS — Microsoft Learn</a>
+</div></div>`},
 {title:"Domain Controllers: o coração do domínio",content:`<p>O <strong>Domain Controller (DC)</strong> é o servidor que efetivamente roda o AD DS. É nele que ficam armazenados o banco de dados de usuários, as políticas de segurança e as regras de autenticação.</p>
 <p>Um detalhe importante: diferente de muitos sistemas onde existe um servidor "principal" e réplicas "secundárias", no AD moderno (desde o Windows 2000) todos os DCs são, em teoria, iguais — qualquer um deles pode autenticar usuários e aceitar alterações. Esse modelo se chama <strong>Multi-Master Replication</strong>. Se você altera a senha de um usuário no DC1, essa mudança se propaga automaticamente para o DC2, DC3, etc.</p>
 <p>Por que ter mais de um DC? Redundância. Se o único DC de uma empresa cai, ninguém mais consegue logar — literalmente a empresa para. Por isso a prática recomendada é ter pelo menos 2 DCs por domínio, de preferência em locais físicos diferentes.</p>
@@ -592,7 +597,12 @@ const MODULES = [
 <h4>O pipe: encadeando comandos</h4>
 <p>Um dos recursos mais poderosos do PowerShell é o operador pipe (<code>|</code>), que passa a saída de um comando como entrada do próximo. Por exemplo:</p>
 <pre>Get-ADUser -Filter * | Where-Object {$_.Enabled -eq $false}</pre>
-<p>Esse comando busca todos os usuários e depois filtra só os que estão desabilitados — útil para encontrar contas inativas que podem ser um risco de segurança.</p>`},
+<p>Esse comando busca todos os usuários e depois filtra só os que estão desabilitados — útil para encontrar contas inativas que podem ser um risco de segurança.</p><div style="margin-top:22px;padding:14px 18px;background:var(--surface2);border-radius:10px;border:1px solid var(--border2)">
+<div style="font-size:11px;color:var(--accent);font-family:var(--mono);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">📚 Fontes oficiais para aprofundar</div>
+<div style="font-size:12px;line-height:2;color:var(--muted)">
+<a href="https://learn.microsoft.com/en-us/training/paths/get-started-windows-powershell/" target="_blank" style="color:var(--accent)">Trilha oficial: PowerShell para iniciantes — Microsoft Learn</a><br>
+<a href="https://learn.microsoft.com/en-us/windows-server/identity/laps/laps-overview" target="_blank" style="color:var(--accent)">Documentação oficial: Windows LAPS</a>
+</div></div>`},
 {title:"Automatizando tarefas do dia a dia: criação de usuários",content:`<p>A tarefa mais comum de um analista de suporte é criar, modificar e desabilitar usuários. Vamos ver como isso funciona na prática.</p>
 <h4>Criar um usuário único</h4>
 <pre>New-ADUser -Name "João Silva" \`
@@ -684,7 +694,12 @@ Pedro Costa,pedro.costa,RH</pre>
 <li><strong>Windows PE Add-on</strong> — adiciona o Windows PE (uma versão mínima do Windows usada como "ambiente de boot" durante a instalação) ao ADK</li>
 <li><strong>MDT</strong> — a ferramenta de orquestração que usa os dois anteriores para criar e gerenciar o processo de deploy</li>
 </ol>
-<p>A ordem importa porque cada ferramenta depende da anterior. Instalar fora de ordem é a causa mais comum de "o MDT não funciona" em quem está aprendendo.</p>`},
+<p>A ordem importa porque cada ferramenta depende da anterior. Instalar fora de ordem é a causa mais comum de "o MDT não funciona" em quem está aprendendo.</p><div style="margin-top:22px;padding:14px 18px;background:var(--surface2);border-radius:10px;border:1px solid var(--border2)">
+<div style="font-size:11px;color:var(--accent);font-family:var(--mono);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">📚 Fontes oficiais para aprofundar</div>
+<div style="font-size:12px;line-height:2;color:var(--muted)">
+<a href="https://learn.microsoft.com/en-us/intune/configmgr/mdt/" target="_blank" style="color:var(--accent)">Documentação oficial: Microsoft Deployment Toolkit (MDT)</a><br>
+<a href="https://learn.microsoft.com/en-us/windows-hardware/manufacture/desktop/sysprep--generalize--a-windows-installation" target="_blank" style="color:var(--accent)">Documentação oficial: Sysprep</a>
+</div></div>`},
 {title:"Construindo a imagem de referência, passo a passo",content:`<p>Vamos percorrer o processo completo, do início ao fim.</p>
 <h4>Passo 1: Instalar um Windows limpo numa VM</h4>
 <p>Comece com uma máquina virtual nova, instale o Windows do zero usando a ISO oficial. Não pule etapas de licenciamento — para ambientes corporativos reais, use as licenças de volume da empresa.</p>
@@ -747,7 +762,12 @@ Pedro Costa,pedro.costa,RH</pre>
 </ul>
 <h4>Como conectar um servidor</h4>
 <p>O componente que faz essa "ponte" é o <strong>Connected Machine Agent</strong>, instalado diretamente no servidor. Depois de instalado e configurado, ele estabelece um heartbeat periódico (a cada ~5 minutos) com o Azure, mantendo o status do servidor atualizado no portal.</p>
-<p>No Windows Server 2025, esse processo ficou ainda mais simples: existe um assistente integrado na bandeja do sistema que guia a conexão sem precisar rodar scripts manualmente — embora o método tradicional (rodar um script PowerShell gerado pelo próprio portal do Azure) continue funcionando e é o mais usado em ambientes com muitos servidores.</p>`},
+<p>No Windows Server 2025, esse processo ficou ainda mais simples: existe um assistente integrado na bandeja do sistema que guia a conexão sem precisar rodar scripts manualmente — embora o método tradicional (rodar um script PowerShell gerado pelo próprio portal do Azure) continue funcionando e é o mais usado em ambientes com muitos servidores.</p><div style="margin-top:22px;padding:14px 18px;background:var(--surface2);border-radius:10px;border:1px solid var(--border2)">
+<div style="font-size:11px;color:var(--accent);font-family:var(--mono);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">📚 Fontes oficiais para aprofundar</div>
+<div style="font-size:12px;line-height:2;color:var(--muted)">
+<a href="https://learn.microsoft.com/en-us/training/modules/intro-to-arc-for-servers/" target="_blank" style="color:var(--accent)">Módulo oficial: Introdução ao Azure Arc — Microsoft Learn</a><br>
+<a href="https://learn.microsoft.com/en-us/azure/azure-arc/servers/quick-enable-hybrid-vm" target="_blank" style="color:var(--accent)">Guia oficial: Conectar servidor ao Azure Arc</a>
+</div></div>`},
 {title:"Identidade híbrida: conectando o AD local com a nuvem",content:`<p>Se sua empresa usa Microsoft 365 (Teams, SharePoint, Outlook), esses serviços rodam na nuvem e usam o <strong>Microsoft Entra ID</strong> (o nome atual do que era chamado de Azure AD) para autenticação — um serviço de identidade separado do Active Directory local.</p>
 <p>Isso cria um problema: os funcionários já têm uma conta no AD local para logar no Windows. Vão precisar de uma segunda conta separada, com senha diferente, só para acessar o Microsoft 365? Isso seria péssimo para a experiência do usuário e para a segurança (mais senhas para gerenciar e vazarem).</p>
 <p>A solução é a <strong>identidade híbrida</strong>, implementada através do <strong>Microsoft Entra Connect</strong> — uma ferramenta que sincroniza automaticamente os usuários do AD local para o Entra ID na nuvem, mantendo os dois sistemas em sincronia.</p>
@@ -793,7 +813,11 @@ Pedro Costa,pedro.costa,RH</pre>
 <p>Como você já viu no Módulo 1, o Active Directory depende inteiramente do DNS para funcionar — é assim que os clientes encontram os Domain Controllers. Na prática, uma proporção enorme dos problemas de "AD não funciona" na verdade são problemas de DNS mal configurado, e não do AD em si.</p>
 <p>Antes de qualquer outro diagnóstico, teste: <code>nslookup empresa.local</code> — isso deveria retornar o IP de um ou mais Domain Controllers. Se não retornar nada ou retornar um erro, você já achou a causa provável.</p>
 <h4>Isolando o problema: é o usuário, a máquina, ou o servidor?</h4>
-<p>Uma pergunta simples ajuda a direcionar o diagnóstico: o problema acontece só com esse usuário específico, ou qualquer usuário nessa máquina tem o mesmo problema? Se for só com um usuário específico, mesmo em máquinas diferentes, o problema provavelmente está na conta dele (senha, permissões, conta bloqueada). Se for qualquer usuário na mesma máquina, o problema está na máquina (secure channel quebrado, configuração de rede, DNS local errado). Se for em várias máquinas ao mesmo tempo, o problema está no servidor (DC fora do ar, replicação falhando).</p>`},
+<p>Uma pergunta simples ajuda a direcionar o diagnóstico: o problema acontece só com esse usuário específico, ou qualquer usuário nessa máquina tem o mesmo problema? Se for só com um usuário específico, mesmo em máquinas diferentes, o problema provavelmente está na conta dele (senha, permissões, conta bloqueada). Se for qualquer usuário na mesma máquina, o problema está na máquina (secure channel quebrado, configuração de rede, DNS local errado). Se for em várias máquinas ao mesmo tempo, o problema está no servidor (DC fora do ar, replicação falhando).</p><div style="margin-top:22px;padding:14px 18px;background:var(--surface2);border-radius:10px;border:1px solid var(--border2)">
+<div style="font-size:11px;color:var(--accent);font-family:var(--mono);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">📚 Fontes oficiais para aprofundar</div>
+<div style="font-size:12px;line-height:2;color:var(--muted)">
+<a href="https://learn.microsoft.com/en-us/troubleshoot/windows-server/identity/active-directory-replication-troubleshooting" target="_blank" style="color:var(--accent)">Guia oficial: Solução de problemas de replicação do AD</a>
+</div></div>`},
 {title:"As ferramentas essenciais: dcdiag, repadmin e Event Viewer",content:`<p>Três ferramentas cobrem a grande maioria dos cenários de troubleshooting de AD no dia a dia.</p>
 <h4>dcdiag: o check-up completo do Domain Controller</h4>
 <p>O <code>dcdiag</code> roda uma bateria inteira de testes automáticos num Domain Controller — conectividade de rede, saúde do DNS, replicação, integridade do Sysvol (pasta compartilhada que armazena GPOs), e vários outros serviços críticos. Cada teste retorna um simples "passed" ou "failed", facilitando identificar rapidamente onde está o problema.</p>
@@ -833,47 +857,51 @@ Pedro Costa,pedro.costa,RH</pre>
 <p>Esse é exatamente o tipo de conhecimento que vale a pena registrar no seu runbook de operações (que você vai construir no Mês 5 do seu PDI). Problemas de secure channel são recorrentes em qualquer ambiente corporativo, e ter o procedimento documentado economiza tempo significativo em chamados futuros.</p>`}
 ]
   },
-  {id:'m6',cls:'m6',num:'Mês 6',title:'Preparação para o exame AZ-800',desc:'Revisão dos temas do exame, estratégias de prova e simulados',
+  {id:'m6',cls:'m6',num:'Mês 6',title:'Certificação Windows Server (AZ-802)',desc:'⚠️ Atualizado: AZ-800/AZ-801 se aposentam em 30/09/2026 — o caminho agora é o AZ-802',
     flashcards:[
-      {tag:'AZ-800',q:'Os 5 domínios do AZ-800 e seus pesos?',a:'1. Deploy e gerenciar AD DS (30–35%) — maior peso\n2. Windows Servers híbrido (10–15%)\n3. VMs e containers (15–20%)\n4. Networking on-premises e híbrido (15–20%)\n5. Storage e File Services (15–20%)',hint:'AD DS tem maior peso — meses 1 e 2 do PDI cobrem exatamente isso!'},
-      {tag:'AZ-800',q:'O que é o Windows Admin Center?',a:'Interface web moderna para gerenciar servidores e PCs, local ou via Azure. Substitui consoles antigos como Server Manager e MMC. O AZ-800 cobra seu uso para gerenciamento híbrido e monitoramento.',hint:'WAC é gratuito — download no site da Microsoft.'},
-      {tag:'AZ-800',q:'O que é SMB over QUIC?',a:'Funcionalidade do Windows Server 2022/2025 que encapsula SMB no protocolo QUIC (UDP), permitindo acesso seguro a compartilhamentos de arquivo pela internet sem VPN.',hint:'SMB over QUIC = file server remoto sem VPN.'},
-      {tag:'AZ-800',q:'O que é o Azure File Sync?',a:'Sincroniza file shares locais (Windows Server) com Azure Files na nuvem. Permite acesso remoto, tiered storage (arquivos raramente usados ficam só na nuvem) e serve como backup offsite dos file servers.',hint:'Azure File Sync = file server local + backup na nuvem automático.'},
-      {tag:'AZ-800',q:'Melhores práticas para a prova AZ-800?',a:'1. Leia todos os domínios do study guide oficial\n2. Faça o Practice Assessment gratuito\n3. Foque em AD DS (maior peso)\n4. Pratique no lab\n5. Questões de cenário — pense no que resolve o problema\n6. Reserve 2h',hint:'Practice Assessment gratuito da Microsoft é a melhor prévia!'},
-      {tag:'AZ-800',q:'Qual certificação completa após AZ-800 + AZ-801?',a:'Microsoft Certified: Windows Server Hybrid Administrator Associate. AZ-800: infraestrutura core (AD, redes, storage, VMs). AZ-801: serviços avançados (HA, DR, migração, segurança).',hint:'AZ-800 + AZ-801 = Windows Server Hybrid Administrator Associate.'},
+      {tag:'AZ-802',q:'IMPORTANTE: o que aconteceu com o AZ-800?',a:'A Microsoft está aposentando o AZ-800 e o AZ-801 em 30 de setembro de 2026. Eles foram substituídos por um único exame novo: o AZ-802 (Administering Windows Server). A certificação também mudou de nome: de "Windows Server Hybrid Administrator Associate" para "Windows Server Administrator Associate".',hint:'Fonte oficial: learn.microsoft.com/credentials/certifications/windows-server-administrator-associate'},
+      {tag:'AZ-802',q:'Os domínios do AZ-802 e seus pesos (7 áreas)?',a:'1. Deploy e gerenciar AD DS (20–25%) — maior peso\n2. Gerenciar storage e file services (15–20%)\n3. Monitorar e solucionar problemas do Windows Server (15–20%)\n4. Gerenciar instâncias e workloads híbridos (10–15%)\n+ outras áreas cobrindo VMs, containers e redes',hint:'AD DS continua sendo o maior peso — seus meses 1 e 2 do PDI continuam sendo a base certa!'},
+      {tag:'AZ-802',q:'Por que a Microsoft unificou os dois exames em um?',a:'Simplificação: antes eram 2 exames (AZ-800 + AZ-801), 2 taxas (~$330 no total), 2 blueprints para estudar. Agora é 1 exame, 1 taxa (~$165), conteúdo consolidado e atualizado com foco em Azure Arc e ferramentas híbridas atuais.',hint:'Menos custo e menos tempo para chegar na mesma certificação.'},
+      {tag:'AZ-802',q:'O que é o Windows Admin Center e por que ainda importa?',a:'Interface web moderna para gerenciar servidores e PCs, local ou via Azure. Substitui consoles antigos como Server Manager e MMC. O AZ-802 continua cobrando seu uso para gerenciamento híbrido e monitoramento — nada mudou aqui.',hint:'WAC é gratuito — download no site da Microsoft.'},
+      {tag:'AZ-802',q:'O que é o Azure File Sync?',a:'Sincroniza file shares locais (Windows Server) com Azure Files na nuvem. Permite acesso remoto, tiered storage (arquivos raramente usados ficam só na nuvem) e serve como backup offsite. Faz parte do domínio "Storage e File Services" (15-20% do AZ-802).',hint:'Azure File Sync = file server local + backup na nuvem automático.'},
+      {tag:'AZ-802',q:'Se eu já estudei para o AZ-800, meu conhecimento ainda vale?',a:'Sim, praticamente 100%. O AZ-802 consolida o conteúdo do AZ-800 e AZ-801 — não é matéria nova, é a mesma matéria organizada em um exame só. Quem já tem experiência com AZ-800/801 costuma precisar de só 3-4 semanas extras de revisão para o AZ-802.',hint:'Seu PDI continua totalmente válido — só o nome e o formato do exame final mudou.'},
     ],
     quiz:[
-      {q:'Qual domínio tem maior peso no AZ-800?',opts:['VMs e containers','Deploy e gerenciar AD DS (30-35%)','Storage e File Services','Networking híbrido'],correct:1,exp:'AD DS tem 30-35% das questões. Os meses 1 e 2 do PDI são a base mais importante.'},
-      {q:'O SMB over QUIC resolve qual problema?',opts:['Replicação do AD','Acesso a file servers remotamente sem VPN','Substituir DNS','Sincronizar usuários com Azure'],correct:1,exp:'SMB over QUIC encapsula SMB em UDP/QUIC, permitindo acesso a compartilhamentos pela internet sem VPN.'},
-      {q:'Quantos exames para a certificação completa?',opts:['1 (AZ-800)','2 (AZ-800 + AZ-801)','3 exames','AZ-800 + AZ-900'],correct:1,exp:'São dois: AZ-800 (infraestrutura core) e AZ-801 (serviços avançados e segurança).'},
+      {q:'O AZ-800 e o AZ-801 estão sendo aposentados em qual data?',opts:['31 de dezembro de 2026','30 de setembro de 2026','Já foram aposentados','Não há data definida'],correct:1,exp:'Confirmado na página oficial da Microsoft: AZ-800 e AZ-801 se aposentam em 30 de setembro de 2026, às 17h (horário Central dos EUA).'},
+      {q:'Qual exame substitui o AZ-800 e o AZ-801?',opts:['AZ-801 sozinho','AZ-900','AZ-802 (Administering Windows Server)','Não há substituto'],correct:2,exp:'O AZ-802 consolida o conteúdo dos dois exames antigos em um único exame novo, mais barato e mais rápido de completar.'},
+      {q:'Qual domínio tem maior peso no AZ-802?',opts:['VMs e containers','Deploy e gerenciar AD DS (20-25%)','Storage e File Services','Monitoramento'],correct:1,exp:'AD DS continua sendo o domínio de maior peso, embora com uma porcentagem um pouco menor que no AZ-800 antigo (era 30-35%, agora é 20-25%, já que o exame ficou mais abrangente).'},
+      {q:'Se você já tem experiência com AZ-800/AZ-801, quanto tempo extra leva para o AZ-802?',opts:['Precisa recomeçar do zero','Cerca de 3-4 semanas de revisão','1 ano de estudo adicional','Não é possível migrar o conhecimento'],correct:1,exp:'Como o AZ-802 é essencialmente uma consolidação do conteúdo já existente, quem já estudou AZ-800/801 costuma precisar só de uma revisão curta, não de um estudo do zero.'},
     ],
     lessons: [
-{title:"Como o exame AZ-800 é estruturado e o que priorizar",content:`<p>O AZ-800 (Administering Windows Server Hybrid Core Infrastructure) avalia conhecimento prático de administração de servidores Windows em ambientes híbridos — ou seja, misturando infraestrutura local com recursos de nuvem Azure. É o primeiro dos dois exames necessários para a certificação Windows Server Hybrid Administrator Associate (o segundo é o AZ-801).</p>
-<h4>Os 5 domínios e seus pesos</h4>
-<p>A prova é dividida em cinco áreas temáticas, cada uma com um peso diferente na nota final:</p>
+{title:"⚠️ Mudança importante: o AZ-800 está sendo substituído pelo AZ-802",content:`<p><strong>Esta é uma atualização crítica para o seu plano de estudos.</strong> Durante a preparação deste material, verificamos diretamente na documentação oficial da Microsoft (learn.microsoft.com) e encontramos uma mudança que afeta diretamente seu cronograma.</p>
+<p>A Microsoft está aposentando os exames <strong>AZ-800</strong> e <strong>AZ-801</strong> em <strong>30 de setembro de 2026</strong>. No lugar dos dois, existe agora um único exame novo: o <strong>AZ-802 — Administering Windows Server</strong>, atualmente em fase beta e com lançamento geral esperado para meados de 2026.</p>
+<p>A certificação também mudou de nome: o que era <em>"Microsoft Certified: Windows Server Hybrid Administrator Associate"</em> passou a se chamar <em>"Microsoft Certified: Windows Server Administrator Associate"</em> (a palavra "Hybrid" foi removida do nome, embora o conteúdo continue sendo sobre administração híbrida).</p>
+<h4>O que isso muda para o seu PDI, na prática</h4>
+<p>A boa notícia: <strong>quase nada muda no seu plano de estudos</strong>. O AZ-802 não é uma matéria nova — ele consolida exatamente o mesmo conteúdo que antes estava dividido entre AZ-800 e AZ-801, só que agora testado em um exame só. Os Meses 1 a 5 do seu PDI (Active Directory, PowerShell, imagem Windows, Azure Arc, troubleshooting) continuam sendo exatamente a base certa.</p>
+<p>A única mudança prática: no Mês 6, em vez de agendar o AZ-800, você vai direto para o <strong>AZ-802</strong> — um exame só, mais barato (uma taxa em vez de duas) e com conteúdo atualizado.</p>
+<h4>Por que isso é uma boa notícia, não uma má notícia</h4>
+<p>Antes da mudança, a certificação completa exigia passar em dois exames separados (AZ-800 + AZ-801), com duas taxas de inscrição (juntas, quase o dobro do custo). Com o AZ-802, você chega na mesma certificação com um único exame — economia de tempo e de dinheiro.</p>
+<h4>Fonte oficial para acompanhar</h4>
+<p>Sempre que quiser confirmar o status mais atual dessa transição, consulte diretamente: <a href="https://learn.microsoft.com/en-us/credentials/certifications/windows-server-administrator-associate/" target="_blank" style="color:var(--accent)">learn.microsoft.com/credentials/certifications/windows-server-administrator-associate</a></p><div style="margin-top:22px;padding:14px 18px;background:var(--surface2);border-radius:10px;border:1px solid var(--border2)">
+<div style="font-size:11px;color:var(--accent);font-family:var(--mono);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">📚 Fontes oficiais para aprofundar</div>
+<div style="font-size:12px;line-height:2;color:var(--muted)">
+<a href="https://learn.microsoft.com/en-us/credentials/certifications/windows-server-administrator-associate/" target="_blank" style="color:var(--accent)">Página oficial da certificação Windows Server Administrator Associate</a><br>
+<a href="https://learn.microsoft.com/en-us/credentials/certifications/resources/study-guides/az-802" target="_blank" style="color:var(--accent)">Study Guide oficial completo: AZ-802</a>
+</div></div>`},
+{title:"Como o AZ-802 é estruturado e o que priorizar",content:`<p>O AZ-802 (Administering Windows Server) avalia sua capacidade de implantar, gerenciar e solucionar problemas do Windows Server em ambientes locais, de nuvem ou híbridos. Segundo a própria Microsoft, você deve ter experiência administrando identidade, segurança, gerenciamento, computação, rede, armazenamento e monitoramento.</p>
+<h4>Os domínios e seus pesos (baseado no guia oficial)</h4>
+<p>A prova é dividida em sete áreas temáticas. As três com maior peso, confirmadas na documentação oficial:</p>
 <ol style="padding-left:20px;line-height:1.9">
-<li><strong>Deploy e gerenciar Active Directory Domain Services (30-35%)</strong> — de longe o maior peso. Cobre exatamente o conteúdo dos Módulos 1 e 2 do seu PDI: estrutura do AD, OUs, GPOs, replicação, FSMO.</li>
-<li><strong>Gerenciar Windows Servers em ambiente híbrido (10-15%)</strong> — Windows Admin Center, Azure Arc, atualizações híbridas.</li>
-<li><strong>Gerenciar máquinas virtuais e containers (15-20%)</strong> — Hyper-V, containers Windows, Azure VMs.</li>
-<li><strong>Implementar e gerenciar redes on-premises e híbridas (15-20%)</strong> — DNS, DHCP, VPN, SMB over QUIC.</li>
-<li><strong>Gerenciar storage e file services (15-20%)</strong> — File Server, Azure File Sync, Storage Spaces.</li>
+<li><strong>Deploy e gerenciar Active Directory Domain Services (20-25%)</strong> — o domínio de maior peso, cobrindo exatamente o conteúdo dos Módulos 1 e 2 do seu PDI: domain controllers on-premises e no Azure, replicação, FSMO, Group Policy.</li>
+<li><strong>Gerenciar storage e file services (15-20%)</strong> — Azure Files, Azure File Sync, compartilhamentos do Windows Server, Storage Spaces.</li>
+<li><strong>Monitorar e solucionar problemas do Windows Server (15-20%)</strong> — exatamente o conteúdo do Módulo 5 do seu PDI.</li>
+<li><strong>Gerenciar instâncias e workloads híbridos com Azure Arc (10-15%)</strong> — conteúdo do Módulo 4.</li>
 </ol>
-<p>Note que o primeiro domínio sozinho vale quase o mesmo que os outros quatro somados. Isso significa que, se seu tempo de estudo é limitado, dominar profundamente AD DS traz o maior retorno possível na nota final.</p>
+<p>As demais áreas cobrem gerenciamento remoto (PowerShell, SSH, Azure Arc onboarding), máquinas virtuais e containers, e redes híbridas.</p>
+<h4>Tecnologias que você deve ter familiaridade prática</h4>
+<p>O guia oficial da Microsoft lista explicitamente: <strong>Windows Admin Center, Hyper-V, PowerShell, Azure Arc, Azure Monitor, Azure Update Manager e Microsoft Defender for Cloud</strong> — todas essas ferramentas aparecem no seu PDI ao longo dos 6 meses.</p>
 <h4>O formato da prova</h4>
-<p>A prova costuma ter entre 40-60 questões, com um tempo de aproximadamente 100-120 minutos (isso pode variar — sempre confira o formato atual no momento de agendar). O formato inclui múltipla escolha, questões de arrastar-e-soltar, e ocasionalmente cenários mais longos com múltiplas perguntas relacionadas a um mesmo caso.</p>`},
-{title:"Estratégia de estudo para quem está começando do zero",content:`<p>Preparar-se para uma certificação técnica quando você é iniciante exige uma estratégia diferente de quem já trabalha há anos com a tecnologia. Aqui está uma abordagem prática, testada, para maximizar seu aproveitamento no tempo disponível.</p>
-<h4>1. Priorize prática sobre memorização</h4>
-<p>É tentador tentar "decorar" definições e comandos. Mas o AZ-800 é uma prova de cenários — ela testa se você entende <em>quando</em> e <em>por que</em> usar cada ferramenta, não só o que ela faz. A melhor forma de internalizar isso é fazendo, no seu laboratório: quebrar coisas de propósito e consertá-las é uma das formas mais eficazes de aprendizado que existe.</p>
-<h4>2. Use o Practice Assessment oficial e gratuito</h4>
-<p>A Microsoft disponibiliza um simulado oficial gratuito (Practice Assessment) que usa questões no mesmo estilo e nível de dificuldade da prova real. Fazer esse simulado <em>antes</em> de sentir que está "pronto" é uma estratégia inteligente — ele revela exatamente quais áreas você precisa reforçar, evitando que você estude uniformemente tópicos que já domina.</p>
-<h4>3. Leia questões de cenário pensando no problema, não na tecnologia</h4>
-<p>Muitas questões da prova descrevem uma situação de negócio ("a empresa X precisa que os usuários da filial Y acessem recursos da matriz sem VPN") e pedem a solução técnica correta. A armadilha comum é tentar aplicar a tecnologia mais "impressionante" ou recentemente estudada, em vez de pensar qual solução resolve <em>especificamente</em> aquele problema com o menor custo/complexidade.</p>
-<h4>4. Não negligencie os domínios menores</h4>
-<p>É tentador focar 100% em AD DS por ter o maior peso, mas isso deixa 65-70% da prova vulnerável. Uma estratégia equilibrada é: domine profundamente AD DS, mas garanta um entendimento sólido (não superficial) dos outros quatro domínios.</p>
-<h4>5. Gerencie seu tempo durante a prova</h4>
-<p>Com um tempo limitado e dezenas de questões, é importante não travar em uma única pergunta difícil. Se não souber a resposta com confiança em ~90 segundos, marque sua melhor suposição, sinalize para revisão (a maioria das plataformas de exame permite isso), e continue — voltando no final se sobrar tempo.</p>
-<h4>Lembrete importante sobre prazos</h4>
-<p>O AZ-800 está programado para se aposentar em setembro de 2026. Dentro do seu plano de 6 meses, você tem tempo confortável — mas evite deixar o agendamento para a última semana antes da aposentadoria, por segurança contra imprevistos.</p>`}
+<p>Nota de corte: 700 de 1000 pontos. Como o exame consolidou o conteúdo de duas provas antigas em uma só, espera-se uma prova um pouco mais longa que o AZ-800 isolado era — mas cobrindo em um único exame o que antes exigia duas inscrições separadas.</p>`}
 ]
   }
 ];
