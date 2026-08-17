@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PDI Study — Suporte Corporativo</title>
+<title>Estudos.study — PDI + Concursos</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Inter:wght@400;500;600&display=swap');
@@ -11,7 +11,6 @@
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:100vh}
 
-/* LOADING */
 .loading-screen{position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;z-index:999;transition:opacity .4s}
 .loading-logo{font-family:var(--mono);font-size:22px;font-weight:700;color:var(--accent)}
 .loading-logo span{color:var(--muted)}
@@ -20,13 +19,11 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:1
 @keyframes loadbar{0%{width:0;margin-left:0}50%{width:100%;margin-left:0}100%{width:0;margin-left:100%}}
 .loading-msg{font-size:13px;color:var(--muted)}
 
-/* OVERLAY BASE */
-.overlay{position:fixed;inset:0;background:rgba(0,0,0,.88);display:flex;align-items:center;justify-content:center;z-index:990;padding:20px}
-.overlay-card{background:var(--surface);border:1px solid var(--border2);border-radius:16px;padding:32px;width:100%;max-width:480px}
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.88);display:flex;align-items:center;justify-content:center;z-index:990;padding:20px;overflow-y:auto}
+.overlay-card{background:var(--surface);border:1px solid var(--border2);border-radius:16px;padding:32px;width:100%;max-width:520px;margin:auto}
 .overlay-title{font-size:18px;font-weight:700;margin-bottom:6px}
 .overlay-sub{font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:22px}
 
-/* SETUP SUPABASE */
 .step-box{background:var(--surface2);border-radius:10px;padding:14px 16px;margin-bottom:10px;font-size:13px;line-height:1.7}
 .step-box b{color:var(--accent);font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:3px}
 .step-box a{color:var(--accent);text-decoration:none}
@@ -34,29 +31,29 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:1
 .inp{width:100%;padding:10px 14px;border-radius:8px;border:1px solid var(--border2);background:var(--bg);color:var(--text);font-size:13px;font-family:var(--mono);outline:none;transition:border .15s;margin-top:6px}
 .inp:focus{border-color:var(--accent)}
 .inp::placeholder{color:var(--muted)}
+textarea.inp{font-family:var(--sans);font-size:13px;min-height:110px;resize:vertical;line-height:1.6}
 .inp-label{font-size:12px;color:var(--muted);margin-top:12px;display:block}
 .err{font-size:12px;color:var(--red);margin-top:8px;display:none}
 .info-msg{font-size:12px;color:var(--amber);margin-top:8px;display:none}
 
-/* AUTH */
 .auth-tabs{display:flex;gap:4px;margin-bottom:20px}
 .auth-tab{flex:1;padding:9px;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--muted);font-size:13px;font-weight:500;cursor:pointer;font-family:var(--sans);transition:all .15s}
 .auth-tab.active{background:var(--accent);border-color:var(--accent);color:#fff}
 
-/* BTNs */
 .btn{padding:10px 22px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:var(--sans);border:1px solid;transition:all .15s}
 .btn-primary{background:var(--accent);border-color:var(--accent);color:#fff}
 .btn-primary:hover{opacity:.85}
 .btn-primary:disabled{opacity:.5;cursor:not-allowed}
 .btn-ghost{background:transparent;border-color:var(--border2);color:var(--muted)}
 .btn-ghost:hover{color:var(--text);border-color:var(--text)}
+.btn-ai{background:rgba(124,92,252,.1);border-color:rgba(124,92,252,.4);color:var(--accent2)}
+.btn-ai:hover{background:rgba(124,92,252,.2)}
 .btn-danger{background:transparent;border-color:rgba(239,68,68,.4);color:var(--red)}
 .btn-danger:hover{background:rgba(239,68,68,.1)}
 .btn-row{display:flex;gap:8px;margin-top:16px;flex-wrap:wrap}
 
-/* NAV */
 .nav{display:flex;align-items:center;gap:10px;padding:12px 20px;border-bottom:1px solid var(--border);background:var(--surface);flex-wrap:wrap}
-.nav-logo{font-family:var(--mono);font-size:13px;font-weight:700;color:var(--accent);letter-spacing:-.5px}
+.nav-logo{font-family:var(--mono);font-size:13px;font-weight:700;color:var(--accent);letter-spacing:-.5px;cursor:pointer}
 .nav-logo span{color:var(--muted)}
 .nav-tabs{display:flex;gap:4px;margin-left:auto}
 .nav-tab{font-size:12px;padding:6px 13px;border-radius:6px;border:none;background:transparent;color:var(--muted);cursor:pointer;font-family:var(--sans);font-weight:500;transition:all .15s}
@@ -71,33 +68,57 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:1
 .user-pill{font-size:11px;padding:4px 10px;border-radius:20px;background:var(--surface2);border:1px solid var(--border2);color:var(--muted);white-space:nowrap;max-width:140px;overflow:hidden;text-overflow:ellipsis}
 @keyframes pulse{0%,100%{opacity:.3}50%{opacity:1}}
 
-/* MAIN */
-.main{max-width:860px;margin:0 auto;padding:28px 20px}
+.main{max-width:900px;margin:0 auto;padding:28px 20px}
 
-/* MODULES */
-.modules-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px}
+.page-header{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:16px;flex-wrap:wrap}
+.page-title{font-size:22px;font-weight:700;margin-bottom:4px}
+.page-sub{font-size:13px;color:var(--muted)}
+.section-block{margin-bottom:36px}
+.section-block-title{font-size:15px;font-weight:700;margin-bottom:4px;display:flex;align-items:center;gap:8px}
+.section-block-sub{font-size:12px;color:var(--muted);margin-bottom:14px}
+
+.modules-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px}
 .mod-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px;cursor:pointer;transition:all .2s;position:relative;overflow:hidden}
 .mod-card:hover{border-color:var(--border2);transform:translateY(-2px)}
-.mod-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:12px 12px 0 0}
-.mod-card.m1::before{background:var(--accent)}.mod-card.m2::before{background:var(--green)}
-.mod-card.m3::before{background:var(--amber)}.mod-card.m4::before{background:var(--accent2)}
-.mod-card.m5::before{background:#ec4899}.mod-card.m6::before{background:#06b6d4}
+.mod-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:12px 12px 0 0;background:var(--accent)}
+.mod-card.c1::before{background:var(--accent)}.mod-card.c2::before{background:var(--green)}
+.mod-card.c3::before{background:var(--amber)}.mod-card.c4::before{background:var(--accent2)}
+.mod-card.c5::before{background:#ec4899}.mod-card.c6::before{background:#06b6d4}
 .mod-num{font-family:var(--mono);font-size:10px;color:var(--muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:1px}
 .mod-title{font-size:14px;font-weight:600;margin-bottom:8px}
 .mod-desc{font-size:12px;color:var(--muted);line-height:1.5;margin-bottom:12px}
-.mod-footer{display:flex;align-items:center;justify-content:space-between}
+.mod-footer{display:flex;align-items:center;justify-content:space-between;gap:8px}
 .mod-count{font-size:11px;color:var(--muted)}
 .mod-progress-bar{height:3px;background:var(--border);border-radius:2px;margin-top:10px;overflow:hidden}
 .mod-progress-fill{height:100%;border-radius:2px;background:var(--green);transition:width .4s}
 .start-btn{font-size:11px;padding:5px 12px;border-radius:6px;border:1px solid var(--border2);background:transparent;color:var(--text);cursor:pointer;font-family:var(--sans);transition:all .15s}
 .start-btn:hover{background:var(--accent);border-color:var(--accent);color:#fff}
+.add-card{border:1px dashed var(--border2);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:6px;color:var(--muted);font-size:13px;min-height:120px}
+.add-card:hover{color:var(--accent);border-color:var(--accent)}
+.add-card .plus{font-size:26px}
 
-/* MODULE VIEW */
-.section-header{display:flex;align-items:center;gap:12px;margin-bottom:24px}
+.section-header{display:flex;align-items:center;gap:12px;margin-bottom:20px;flex-wrap:wrap}
 .back-btn{font-size:12px;padding:6px 12px;border-radius:6px;border:1px solid var(--border2);background:transparent;color:var(--muted);cursor:pointer;font-family:var(--sans);transition:all .15s}
 .back-btn:hover{color:var(--text);border-color:var(--text)}
 .section-title{font-size:18px;font-weight:600}
 .section-sub{font-size:12px;color:var(--muted);margin-top:2px}
+
+.subtab-row{display:flex;gap:6px;margin-bottom:20px;flex-wrap:wrap;border-bottom:1px solid var(--border);padding-bottom:0}
+.subtab{font-size:12px;padding:8px 14px;border:none;background:transparent;color:var(--muted);cursor:pointer;font-family:var(--sans);font-weight:500;border-bottom:2px solid transparent;margin-bottom:-1px}
+.subtab.active{color:var(--accent);border-bottom-color:var(--accent)}
+
+.materia-list{display:flex;flex-direction:column;gap:10px}
+.materia-row{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px 18px;display:flex;align-items:center;gap:14px;cursor:pointer;transition:all .15s}
+.materia-row:hover{border-color:var(--border2)}
+.materia-info{flex:1;min-width:0}
+.materia-name{font-size:14px;font-weight:600}
+.materia-topics{font-size:11px;color:var(--muted);margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.materia-badge{font-family:var(--mono);font-size:10px;padding:3px 9px;border-radius:20px;white-space:nowrap}
+.materia-badge.ready{background:rgba(34,197,94,.12);color:var(--green);border:1px solid rgba(34,197,94,.3)}
+.materia-badge.pending{background:rgba(245,158,11,.12);color:var(--amber);border:1px solid rgba(245,158,11,.3)}
+.materia-del{font-size:16px;color:var(--muted);padding:4px 8px;border-radius:6px}
+.materia-del:hover{color:var(--red);background:rgba(239,68,68,.1)}
+
 .mode-row{display:flex;gap:10px;margin-bottom:28px;flex-wrap:wrap}
 .mode-btn{flex:1;min-width:120px;padding:14px 16px;border-radius:10px;border:1px solid var(--border);background:var(--surface);cursor:pointer;text-align:left;transition:all .2s}
 .mode-btn:hover,.mode-btn.active{border-color:var(--accent);background:rgba(79,142,247,.08)}
@@ -105,7 +126,11 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:1
 .mode-btn-title{font-size:13px;font-weight:600;color:var(--text)}
 .mode-btn-sub{font-size:11px;color:var(--muted);margin-top:2px}
 
-/* LESSON MODE */
+.gen-empty{background:var(--surface);border:1px dashed var(--border2);border-radius:14px;padding:40px 24px;text-align:center}
+.gen-empty-icon{font-size:32px;margin-bottom:10px}
+.gen-empty-title{font-size:15px;font-weight:600;margin-bottom:6px}
+.gen-empty-sub{font-size:12px;color:var(--muted);line-height:1.6;margin-bottom:18px;max-width:420px;margin-left:auto;margin-right:auto}
+
 .lesson-layout{display:grid;grid-template-columns:200px 1fr;gap:20px;align-items:start}
 .lesson-toc{position:sticky;top:16px;display:flex;flex-direction:column;gap:4px}
 .lesson-toc-item{padding:9px 12px;border-radius:8px;font-size:12px;color:var(--muted);cursor:pointer;transition:all .15s;border:1px solid transparent;line-height:1.4}
@@ -119,7 +144,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:1
 .lesson-article h3{font-size:19px;font-weight:700;margin-bottom:16px;color:var(--text);line-height:1.35}
 .lesson-article h4{font-size:14px;font-weight:600;color:var(--accent);margin:20px 0 8px}
 .lesson-article p{font-size:14px;line-height:1.75;color:var(--text);margin-bottom:14px}
-.lesson-article ul,.lesson-article ol{margin-bottom:14px}
+.lesson-article ul,.lesson-article ol{margin-bottom:14px;padding-left:20px;line-height:1.9}
 .lesson-article li{font-size:14px;line-height:1.75;color:var(--text);margin-bottom:6px}
 .lesson-article code{font-family:var(--mono);font-size:12.5px;background:rgba(255,255,255,.08);padding:2px 6px;border-radius:4px;color:#93c5fd}
 .lesson-article pre{font-family:var(--mono);font-size:12px;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:14px 16px;overflow-x:auto;line-height:1.7;color:#93c5fd;margin:12px 0 16px;white-space:pre}
@@ -132,7 +157,6 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:1
   .lesson-content-wrap{padding:20px 18px}
 }
 
-/* FLASHCARD */
 .flashcard-area{display:flex;flex-direction:column;align-items:center;gap:20px}
 .fc-counter{font-family:var(--mono);font-size:11px;color:var(--muted)}
 .fc-wrap{width:100%;max-width:560px;perspective:1200px;cursor:pointer}
@@ -160,7 +184,6 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:1
 .ai-dot{width:6px;height:6px;border-radius:50%;background:var(--accent2);animation:pulse 1.2s infinite}
 .ai-dot:nth-child(2){animation-delay:.2s}.ai-dot:nth-child(3){animation-delay:.4s}
 
-/* QUIZ */
 .quiz-area{max-width:600px}
 .quiz-q{font-size:17px;font-weight:600;line-height:1.45;margin-bottom:20px}
 .quiz-opts{display:flex;flex-direction:column;gap:10px;margin-bottom:20px}
@@ -178,7 +201,6 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:1
 .qp-dot{flex:1;height:4px;border-radius:2px;background:var(--border)}
 .qp-dot.done{background:var(--accent)}.qp-dot.current{background:var(--accent2)}
 
-/* RESULT */
 .result-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:36px;text-align:center;max-width:500px;margin:0 auto}
 .result-emoji{font-size:48px;margin-bottom:14px}
 .result-title{font-size:22px;font-weight:700;margin-bottom:6px}
@@ -192,16 +214,24 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:1
 .result-btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
 .result-btn.primary:hover{opacity:.85}
 
-/* SETTINGS */
-.settings-grid{display:grid;gap:12px;max-width:520px}
+.settings-grid{display:grid;gap:12px;max-width:560px}
 .settings-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px}
 .settings-card h3{font-size:14px;font-weight:600;margin-bottom:4px}
 .settings-card p{font-size:12px;color:var(--muted);line-height:1.6;margin-bottom:12px}
 
+.cronograma-list{display:flex;flex-direction:column;gap:10px}
+.crono-day{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px 18px}
+.crono-date{font-family:var(--mono);font-size:11px;color:var(--accent);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px}
+.crono-item{display:flex;align-items:center;gap:10px;font-size:13px;padding:6px 0}
+.crono-item input{width:16px;height:16px;accent-color:var(--accent)}
+.crono-item.checked span{color:var(--muted);text-decoration:line-through}
+.crono-item span{flex:1}
+.crono-mat{font-size:10px;color:var(--muted);font-family:var(--mono);white-space:nowrap}
+.crono-empty{color:var(--muted);font-size:13px;padding:30px;text-align:center;background:var(--surface);border:1px dashed var(--border2);border-radius:12px}
+
 .hidden{display:none!important}
 code{font-family:var(--mono);font-size:12px;background:rgba(255,255,255,.08);padding:1px 5px;border-radius:3px}
 
-/* MOBILE */
 @media(max-width:520px){
   .nav{padding:10px 12px}.nav-tabs{order:3;width:100%}.nav-tab{flex:1;text-align:center}
   .main{padding:16px 12px}.fc-face{padding:20px 14px}.fc-question{font-size:15px}
@@ -209,38 +239,29 @@ code{font-family:var(--mono);font-size:12px;background:rgba(255,255,255,.08);pad
   .modules-grid{grid-template-columns:1fr}.mode-row{flex-direction:column}
   .result-btn{display:block;width:100%;margin:4px 0}
   .overlay-card{padding:22px 18px}
+  .lesson-content-wrap{padding:20px 18px}
 }
 </style>
 </head>
 <body>
 
-<!-- LOADING -->
 <div class="loading-screen" id="loading-screen">
-  <div class="loading-logo">PDI<span>.study</span></div>
+  <div class="loading-logo">Estudos<span>.study</span></div>
   <div class="loading-bar"><div class="loading-fill"></div></div>
   <div class="loading-msg" id="loading-msg">Iniciando...</div>
 </div>
 
-<!-- SETUP SUPABASE (shown once if not configured) -->
 <div class="overlay hidden" id="overlay-setup">
   <div class="overlay-card" style="max-width:560px;max-height:92vh;overflow-y:auto">
     <div class="overlay-title">🔧 Conectar ao Supabase</div>
-    <div class="overlay-sub">Configure uma vez e seu progresso fica salvo na nuvem — acesse de qualquer dispositivo.</div>
-
-    <div style="display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap">
-      <span style="font-size:11px;padding:3px 10px;border-radius:20px;background:rgba(79,142,247,.15);border:1px solid rgba(79,142,247,.3);color:var(--accent)">Passo 1 — Criar projeto</span>
-      <span style="font-size:11px;padding:3px 10px;border-radius:20px;background:rgba(79,142,247,.15);border:1px solid rgba(79,142,247,.3);color:var(--accent)">Passo 2 — Criar tabela</span>
-      <span style="font-size:11px;padding:3px 10px;border-radius:20px;background:rgba(79,142,247,.15);border:1px solid rgba(79,142,247,.3);color:var(--accent)">Passo 3 — Colar chaves</span>
-    </div>
-
+    <div class="overlay-sub">Configure uma vez e seu progresso (PDI e concursos) fica salvo na nuvem — acesse de qualquer dispositivo. Opcional: você pode pular e usar só neste navegador.</div>
     <div class="step-box">
       <b>Passo 1 — Criar projeto no Supabase</b>
-      Acesse <a href="https://supabase.com" target="_blank">supabase.com</a> → faça login → clique em <strong>New project</strong> → dê um nome (ex: <code>pdi-study</code>) → defina uma senha → clique em <strong>Create new project</strong>. Aguarde ~2 min.
+      Acesse <a href="https://supabase.com" target="_blank">supabase.com</a> → login → <strong>New project</strong> → nome (ex: <code>estudos-study</code>) → senha → <strong>Create new project</strong>. Aguarde ~2 min.
     </div>
-
     <div class="step-box">
       <b>Passo 2 — Criar tabela (SQL Editor)</b>
-      No painel do projeto, clique em <strong>SQL Editor</strong> no menu lateral → cole o SQL abaixo → clique em <strong>Run</strong>:
+      No painel → <strong>SQL Editor</strong> → cole e rode:
       <div style="background:var(--bg);border-radius:6px;padding:10px;margin-top:8px;font-family:var(--mono);font-size:11px;line-height:1.7;color:#94a3b8;white-space:pre-wrap;word-break:break-all">create table public.progress (
   id uuid primary key default gen_random_uuid(),
   user_id uuid references auth.users(id) on delete cascade not null,
@@ -252,34 +273,24 @@ create policy "own data" on public.progress
   using (auth.uid() = user_id)
   with check (auth.uid() = user_id);</div>
     </div>
-
     <div class="step-box">
       <b>Passo 3 — Pegar as credenciais</b>
-      No menu lateral → <strong>Project Settings</strong> (ícone de engrenagem) → <strong>API</strong> → copie:<br>
-      • <strong>Project URL</strong> → deve ser assim: <code>https://xyzxyz.supabase.co</code><br>
-      • <strong>anon public</strong> key → começa com <code>eyJhbGciOi...</code> (é longa, uns 200 caracteres)
+      <strong>Project Settings</strong> → <strong>API</strong> → copie <strong>Project URL</strong> e <strong>anon public</strong> key.
     </div>
-
     <span class="inp-label">Project URL <span style="color:var(--red)">*</span></span>
     <input class="inp" id="setup-url" placeholder="https://xxxxxxxxxxxxxxxxxxx.supabase.co" autocomplete="off" />
-
     <span class="inp-label" style="margin-top:10px">Anon Key <span style="color:var(--red)">*</span></span>
     <input class="inp" id="setup-anon" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." autocomplete="off" />
-
     <div class="err" id="setup-err"></div>
     <div class="info-msg" id="setup-info"></div>
-
     <div class="btn-row">
       <button class="btn btn-primary" onclick="saveSupabaseConfig()">✓ Conectar e continuar</button>
       <button class="btn btn-ghost" onclick="skipSetup()">Usar só neste dispositivo</button>
     </div>
-    <div style="font-size:11px;color:var(--muted);margin-top:10px">
-      Ao pular, o progresso fica salvo apenas neste navegador e não sincroniza com outros dispositivos.
-    </div>
+    <div style="font-size:11px;color:var(--muted);margin-top:10px">Ao pular, o progresso fica salvo apenas neste navegador.</div>
   </div>
 </div>
 
-<!-- AUTH (login / cadastro) -->
 <div class="overlay hidden" id="overlay-auth">
   <div class="overlay-card">
     <div class="overlay-title" id="auth-title">Entrar na sua conta</div>
@@ -304,11 +315,65 @@ create policy "own data" on public.progress
   </div>
 </div>
 
-<!-- NAV -->
+<div class="overlay hidden" id="overlay-apikey">
+  <div class="overlay-card">
+    <div class="overlay-title">✦ Configurar IA (Anthropic)</div>
+    <div class="overlay-sub">Para o app sugerir editais, gerar material de estudo para concursos e explicar flashcards com IA, informe sua chave de API da Anthropic. Ela fica salva só neste navegador.</div>
+    <div class="step-box">
+      Crie sua chave em <a href="https://console.anthropic.com/settings/keys" target="_blank">console.anthropic.com/settings/keys</a> e cole abaixo.
+    </div>
+    <span class="inp-label">API Key <span style="color:var(--red)">*</span></span>
+    <input class="inp" id="apikey-input" placeholder="sk-ant-..." autocomplete="off" />
+    <div class="err" id="apikey-err"></div>
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="saveApiKey()">✓ Salvar</button>
+      <button class="btn btn-ghost" onclick="hideApiKeyOverlay()">Fechar</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay hidden" id="overlay-concurso">
+  <div class="overlay-card" style="max-width:560px;max-height:92vh;overflow-y:auto">
+    <div class="overlay-title">🎯 Novo concurso</div>
+    <div class="overlay-sub">Digite o nome do concurso. Você pode colar o conteúdo do edital agora, ou pedir para a IA sugerir as matérias com base em concursos anteriores desse tipo — sempre confira depois no edital oficial publicado pela banca.</div>
+    <span class="inp-label">Nome do concurso <span style="color:var(--red)">*</span></span>
+    <input class="inp" id="nc-name" placeholder="Ex: Concurso INSS — Técnico do Seguro Social" autocomplete="off" style="font-family:var(--sans)" />
+    <span class="inp-label">Banca / instituição (opcional)</span>
+    <input class="inp" id="nc-banca" placeholder="Ex: CESPE/CEBRASPE" autocomplete="off" style="font-family:var(--sans)" />
+    <span class="inp-label">Data da prova (opcional)</span>
+    <input class="inp" id="nc-data" type="date" style="font-family:var(--sans)" />
+    <span class="inp-label">Cole aqui o edital / lista de matérias (opcional)</span>
+    <textarea class="inp" id="nc-edital" placeholder="Cole o texto do edital, ou liste as matérias — uma por linha. Ex:&#10;Língua Portuguesa&#10;Raciocínio Lógico&#10;Direito Constitucional&#10;Direito Previdenciário"></textarea>
+    <div class="err" id="nc-err"></div>
+    <div class="info-msg" id="nc-info"></div>
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="createConcurso()">✓ Criar concurso</button>
+      <button class="btn btn-ai" onclick="createConcursoWithAI()">✦ Criar e sugerir edital com IA</button>
+      <button class="btn btn-ghost" onclick="hideConcursoOverlay()">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay hidden" id="overlay-materia">
+  <div class="overlay-card">
+    <div class="overlay-title">📚 Adicionar matéria</div>
+    <div class="overlay-sub">Adicione uma matéria manualmente e liste os tópicos que ela cobre.</div>
+    <span class="inp-label">Nome da matéria <span style="color:var(--red)">*</span></span>
+    <input class="inp" id="nm-name" placeholder="Ex: Direito Previdenciário" style="font-family:var(--sans)" autocomplete="off" />
+    <span class="inp-label">Tópicos (um por linha, opcional)</span>
+    <textarea class="inp" id="nm-topics" placeholder="Ex:&#10;Regime Geral de Previdência Social&#10;Benefícios previdenciários&#10;Custeio da seguridade social"></textarea>
+    <div class="err" id="nm-err"></div>
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="createMateria()">✓ Adicionar</button>
+      <button class="btn btn-ghost" onclick="hideMateriaOverlay()">Cancelar</button>
+    </div>
+  </div>
+</div>
+
 <nav class="nav">
-  <div class="nav-logo">PDI<span>.study</span></div>
+  <div class="nav-logo" onclick="goHome()">Estudos<span>.study</span></div>
   <div class="nav-tabs">
-    <button class="nav-tab active" onclick="showPage('home')">Módulos</button>
+    <button class="nav-tab active" onclick="showPage('home')">Início</button>
     <button class="nav-tab" onclick="showPage('progress')">Progresso</button>
     <button class="nav-tab" onclick="showPage('settings')">⚙️</button>
   </div>
@@ -320,146 +385,171 @@ create policy "own data" on public.progress
 </nav>
 
 <div class="main">
-  <!-- HOME -->
   <div id="page-home">
-    <div style="margin-bottom:24px">
-      <div style="font-size:22px;font-weight:700;margin-bottom:4px">Seus módulos de estudo</div>
-      <div style="font-size:13px;color:var(--muted)">Escolha um módulo para estudar flashcards ou fazer quiz</div>
+    <div class="section-block">
+      <div class="section-block-title">📘 Seus módulos — PDI</div>
+      <div class="section-block-sub">Plano de desenvolvimento individual: Active Directory, PowerShell, imagem Windows, Azure Arc, troubleshooting e certificação</div>
+      <div class="modules-grid" id="pdi-grid"></div>
     </div>
-    <div class="modules-grid" id="modules-grid"></div>
+    <div class="section-block">
+      <div class="section-block-title">🎯 Seus concursos</div>
+      <div class="section-block-sub">Crie um concurso, monte o edital e organize seus estudos por matéria</div>
+      <div class="modules-grid" id="concursos-grid"></div>
+    </div>
   </div>
 
-  <!-- MODULE -->
-  <div id="page-module" class="hidden">
+  <div id="page-concurso" class="hidden">
     <div class="section-header">
       <button class="back-btn" onclick="goHome()">← Voltar</button>
+      <div style="flex:1">
+        <div class="section-title" id="cc-title"></div>
+        <div class="section-sub" id="cc-sub"></div>
+      </div>
+      <button class="btn btn-ghost" style="font-size:12px" onclick="showMateriaOverlay()">+ Matéria</button>
+      <button class="btn btn-ai" style="font-size:12px" onclick="suggestEditalForExisting()">✦ Sugerir edital com IA</button>
+    </div>
+    <div class="subtab-row">
+      <button class="subtab active" id="cc-tab-materias" onclick="setConcursoTab('materias')">Matérias</button>
+      <button class="subtab" id="cc-tab-crono" onclick="setConcursoTab('crono')">📅 Cronograma</button>
+    </div>
+    <div id="cc-materias-view" class="materia-list"></div>
+    <div id="cc-crono-view" class="hidden">
+      <div style="display:flex;gap:10px;align-items:end;margin-bottom:16px;flex-wrap:wrap">
+        <div>
+          <span class="inp-label" style="margin-top:0">Data da prova</span>
+          <input class="inp" id="crono-date" type="date" style="margin-top:4px" />
+        </div>
+        <button class="btn btn-primary" onclick="generateCronograma()">Gerar cronograma</button>
+      </div>
+      <div class="cronograma-list" id="crono-list"></div>
+    </div>
+  </div>
+
+  <div id="page-module" class="hidden">
+    <div class="section-header">
+      <button class="back-btn" onclick="goBack()">← Voltar</button>
       <div>
-        <div class="section-title" id="mod-title-display"></div>
-        <div class="section-sub" id="mod-sub-display"></div>
-      </div>
-    </div>
-    <div class="mode-row">
-      <button class="mode-btn active" id="mode-lesson" onclick="setMode('lesson')">
-        <div class="mode-btn-icon">📖</div>
-        <div class="mode-btn-title">Material de Estudo</div>
-        <div class="mode-btn-sub">Aprenda a matéria com explicações completas</div>
-      </button>
-      <button class="mode-btn" id="mode-fc" onclick="setMode('flashcard')">
-        <div class="mode-btn-icon">🃏</div>
-        <div class="mode-btn-title">Flashcards</div>
-        <div class="mode-btn-sub">Revise conceito por conceito</div>
-      </button>
-      <button class="mode-btn" id="mode-quiz" onclick="setMode('quiz')">
-        <div class="mode-btn-icon">🧠</div>
-        <div class="mode-btn-title">Quiz</div>
-        <div class="mode-btn-sub">Teste seu conhecimento</div>
-      </button>
-    </div>
-
-    <!-- LESSON / STUDY MODE -->
-    <div id="lesson-mode">
-      <div class="lesson-layout">
-        <div class="lesson-toc" id="lesson-toc"></div>
-        <div class="lesson-content-wrap">
-          <div class="lesson-progress-bar"><div class="lesson-progress-fill" id="lesson-progress-fill"></div></div>
-          <div class="lesson-article" id="lesson-article"></div>
-          <div class="lesson-nav">
-            <button class="btn btn-ghost" id="lesson-prev" onclick="lessonPrev()">← Anterior</button>
-            <span class="lesson-counter" id="lesson-counter"></span>
-            <button class="btn btn-primary" id="lesson-next" onclick="lessonNext()">Próxima →</button>
-          </div>
-        </div>
+        <div class="section-title" id="mat-title-display"></div>
+        <div class="section-sub" id="mat-sub-display"></div>
       </div>
     </div>
 
-    <!-- FLASHCARD MODE -->
-    <div id="flashcard-mode" class="hidden">
-      <div class="flashcard-area">
-        <div class="fc-counter" id="fc-counter">1 / 10</div>
-        <div class="fc-wrap" onclick="flipCard()">
-          <div class="fc" id="fc-card">
-            <div class="fc-face fc-front">
-              <div class="fc-tag" id="fc-tag"></div>
-              <div class="fc-question" id="fc-question"></div>
-              <div class="fc-hint" id="fc-hint">Clique para ver a resposta</div>
-            </div>
-            <div class="fc-face fc-back">
-              <div class="fc-tag" id="fc-tag-back"></div>
-              <div class="fc-answer" id="fc-answer"></div>
+    <div id="mat-empty" class="gen-empty hidden">
+      <div class="gen-empty-icon">✦</div>
+      <div class="gen-empty-title">Ainda não há material de estudo para esta matéria</div>
+      <div class="gen-empty-sub">A IA vai gerar aulas explicativas, flashcards e um quiz com base nos tópicos desta matéria. Isso usa sua chave de API configurada em Ajustes.</div>
+      <button class="btn btn-ai" onclick="generateMateriaContent()">✦ Gerar material de estudo com IA</button>
+    </div>
+
+    <div id="mat-content" class="hidden">
+      <div class="mode-row">
+        <button class="mode-btn active" id="mode-lesson" onclick="setMode('lesson')">
+          <div class="mode-btn-icon">📖</div>
+          <div class="mode-btn-title">Material de Estudo</div>
+          <div class="mode-btn-sub">Aprenda a matéria com explicações completas</div>
+        </button>
+        <button class="mode-btn" id="mode-fc" onclick="setMode('flashcard')">
+          <div class="mode-btn-icon">🃏</div>
+          <div class="mode-btn-title">Flashcards</div>
+          <div class="mode-btn-sub">Revise conceito por conceito</div>
+        </button>
+        <button class="mode-btn" id="mode-quiz" onclick="setMode('quiz')">
+          <div class="mode-btn-icon">🧠</div>
+          <div class="mode-btn-title">Quiz</div>
+          <div class="mode-btn-sub">Teste seu conhecimento</div>
+        </button>
+      </div>
+
+      <div id="lesson-mode">
+        <div class="lesson-layout">
+          <div class="lesson-toc" id="lesson-toc"></div>
+          <div class="lesson-content-wrap">
+            <div class="lesson-progress-bar"><div class="lesson-progress-fill" id="lesson-progress-fill"></div></div>
+            <div class="lesson-article" id="lesson-article"></div>
+            <div class="lesson-nav">
+              <button class="btn btn-ghost" id="lesson-prev" onclick="lessonPrev()">← Anterior</button>
+              <span class="lesson-counter" id="lesson-counter"></span>
+              <button class="btn btn-primary" id="lesson-next" onclick="lessonNext()">Próxima →</button>
             </div>
           </div>
         </div>
-        <div class="fc-controls" id="fc-controls-flip">
-          <button class="fc-btn flip" onclick="flipCard()">Ver resposta</button>
-        </div>
-        <div class="fc-controls hidden" id="fc-controls-rate">
-          <button class="fc-btn wrong" onclick="rateCard('wrong')">❌ Não sei</button>
-          <button class="fc-btn hard" onclick="rateCard('hard')">😅 Difícil</button>
-          <button class="fc-btn ok" onclick="rateCard('ok')">✅ Sei!</button>
-        </div>
-        <div class="ai-btn-wrap">
-          <button class="ai-explain-btn" onclick="askAI()"><span>✦</span> Explicar com IA</button>
-        </div>
-        <div class="ai-box hidden" id="ai-box">
-          <div class="ai-box-header">✦ EXPLICAÇÃO IA</div>
-          <div id="ai-content"></div>
+      </div>
+
+      <div id="flashcard-mode" class="hidden">
+        <div class="flashcard-area">
+          <div class="fc-counter" id="fc-counter">1 / 10</div>
+          <div class="fc-wrap" onclick="flipCard()">
+            <div class="fc" id="fc-card">
+              <div class="fc-face fc-front">
+                <div class="fc-tag" id="fc-tag"></div>
+                <div class="fc-question" id="fc-question"></div>
+                <div class="fc-hint" id="fc-hint">Clique para ver a resposta</div>
+              </div>
+              <div class="fc-face fc-back">
+                <div class="fc-tag" id="fc-tag-back"></div>
+                <div class="fc-answer" id="fc-answer"></div>
+              </div>
+            </div>
+          </div>
+          <div class="fc-controls" id="fc-controls-flip">
+            <button class="fc-btn flip" onclick="flipCard()">Ver resposta</button>
+          </div>
+          <div class="fc-controls hidden" id="fc-controls-rate">
+            <button class="fc-btn wrong" onclick="rateCard('wrong')">❌ Não sei</button>
+            <button class="fc-btn hard" onclick="rateCard('hard')">😅 Difícil</button>
+            <button class="fc-btn ok" onclick="rateCard('ok')">✅ Sei!</button>
+          </div>
+          <div class="ai-btn-wrap">
+            <button class="ai-explain-btn" onclick="askAI()"><span>✦</span> Explicar com IA</button>
+          </div>
+          <div class="ai-box hidden" id="ai-box">
+            <div class="ai-box-header">✦ EXPLICAÇÃO IA</div>
+            <div id="ai-content"></div>
+          </div>
         </div>
       </div>
-    </div>
 
-    <!-- QUIZ MODE -->
-    <div id="quiz-mode" class="hidden">
-      <div class="quiz-area">
-        <div class="quiz-progress" id="quiz-progress"></div>
-        <div class="quiz-q" id="quiz-q"></div>
-        <div class="quiz-opts" id="quiz-opts"></div>
-        <div class="quiz-feedback hidden" id="quiz-feedback"></div>
-        <button class="quiz-next hidden" id="quiz-next" onclick="nextQuiz()">Próxima →</button>
-      </div>
-    </div>
-
-    <!-- RESULT -->
-    <div id="result-mode" class="hidden">
-      <div class="result-card">
-        <div class="result-emoji" id="result-emoji"></div>
-        <div class="result-title" id="result-title"></div>
-        <div class="result-sub" id="result-sub"></div>
-        <div class="result-stats">
-          <div class="result-stat"><div class="result-stat-num" id="res-correct"></div><div class="result-stat-label">Acertos</div></div>
-          <div class="result-stat"><div class="result-stat-num" id="res-wrong"></div><div class="result-stat-label">Erros</div></div>
-          <div class="result-stat"><div class="result-stat-num" id="res-pct"></div><div class="result-stat-label">%</div></div>
+      <div id="quiz-mode" class="hidden">
+        <div class="quiz-area">
+          <div class="quiz-progress" id="quiz-progress"></div>
+          <div class="quiz-q" id="quiz-q"></div>
+          <div class="quiz-opts" id="quiz-opts"></div>
+          <div class="quiz-feedback hidden" id="quiz-feedback"></div>
+          <button class="quiz-next hidden" id="quiz-next" onclick="nextQuiz()">Próxima →</button>
         </div>
-        <div class="result-xp" id="result-xp">+0 XP</div><br><br>
-        <button class="result-btn" onclick="setMode(currentMode)">Tentar novamente</button>
-        <button class="result-btn primary" onclick="goHome()">Outros módulos</button>
+      </div>
+
+      <div id="result-mode" class="hidden">
+        <div class="result-card">
+          <div class="result-emoji" id="result-emoji"></div>
+          <div class="result-title" id="result-title"></div>
+          <div class="result-sub" id="result-sub"></div>
+          <div class="result-stats">
+            <div class="result-stat"><div class="result-stat-num" id="res-correct"></div><div class="result-stat-label">Acertos</div></div>
+            <div class="result-stat"><div class="result-stat-num" id="res-wrong"></div><div class="result-stat-label">Erros</div></div>
+            <div class="result-stat"><div class="result-stat-num" id="res-pct"></div><div class="result-stat-label">%</div></div>
+          </div>
+          <div class="result-xp" id="result-xp">+0 XP</div><br><br>
+          <button class="result-btn" onclick="setMode(currentMode)">Tentar novamente</button>
+          <button class="result-btn primary" onclick="goBack()">Voltar</button>
+        </div>
       </div>
     </div>
   </div>
 
-  <!-- PROGRESS -->
   <div id="page-progress" class="hidden">
-    <div style="margin-bottom:24px">
-      <div style="font-size:22px;font-weight:700;margin-bottom:4px">Seu progresso</div>
-      <div style="font-size:13px;color:var(--muted)">Acompanhe sua evolução em cada módulo</div>
-    </div>
+    <div class="page-header"><div><div class="page-title">Seu progresso</div><div class="page-sub">Acompanhe sua evolução no PDI e em cada concurso</div></div></div>
     <div id="progress-content"></div>
   </div>
 
-  <!-- SETTINGS -->
   <div id="page-settings" class="hidden">
-    <div style="margin-bottom:24px">
-      <div style="font-size:22px;font-weight:700;margin-bottom:4px">Configurações</div>
-      <div style="font-size:13px;color:var(--muted)">Conta, sincronização e dados</div>
-    </div>
+    <div class="page-header"><div><div class="page-title">Configurações</div><div class="page-sub">Conta, IA, sincronização e dados</div></div></div>
     <div id="settings-content"></div>
   </div>
 </div>
 
 <script>
-// ═══════════════════════════════════════════════════════════════════
-// MODULE DATA
-// ═══════════════════════════════════════════════════════════════════
-const MODULES = [
+const PDI_MODULES = [
   {id:'m1',cls:'m1',num:'Mês 1',title:'Active Directory — Fundamentos',desc:'OUs, usuários, grupos, domínios, domain controllers e estrutura do AD',
     flashcards:[
       {tag:'AD DS',q:'O que é o Active Directory Domain Services (AD DS)?',a:'Serviço de diretório da Microsoft que armazena objetos da rede (usuários, computadores, grupos) e controla autenticação e autorização em um domínio Windows.',hint:'Pense nele como a "agenda central" da sua rede corporativa.'},
@@ -906,28 +996,30 @@ Pedro Costa,pedro.costa,RH</pre>
   }
 ];
 
-// ═══════════════════════════════════════════════════════════════════
-// SUPABASE CONFIG & STATE
-// ═══════════════════════════════════════════════════════════════════
-const LS_URL  = 'pdi_sb_url';
-const LS_ANON = 'pdi_sb_anon';
-const LS_LOCAL = 'pdi_local_state';
 
-let sb = null;          // supabase client
-let sbUser = null;      // logged-in user
-let sbRowId = null;     // progress row id
-let state = { xp: 0, progress: {} };
-let saveTO = null;
+// ═══════════════════════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════════════════════
+const LS_URL  = 'est_sb_url';
+const LS_ANON = 'est_sb_anon';
+const LS_LOCAL = 'est_local_state';
+const LS_APIKEY = 'est_api_key';
+const CARD_CLASSES = ['c1','c2','c3','c4','c5','c6'];
+
+let sb = null, sbUser = null, sbRowId = null, saveTO = null;
+let state = { xp: 0, progress: {}, concursos: [] };
+let apiKey = '';
 
 function lsGet(k, d=null){ try{const v=localStorage.getItem(k);return v!==null?JSON.parse(v):d;}catch{return d;} }
 function lsSet(k,v){ try{localStorage.setItem(k,JSON.stringify(v));}catch{} }
+function uid(){ return 'id_'+Math.random().toString(36).slice(2,10)+Date.now().toString(36); }
+function escapeHtml(s){ return (s||'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function ensureState(){ if(!state.progress) state.progress={}; if(!state.concursos) state.concursos=[]; }
 
-function initSupabase(url, anon) {
-  sb = window.supabase.createClient(url, anon);
-}
+function initSupabase(url, anon) { sb = window.supabase.createClient(url, anon); }
 
 // ═══════════════════════════════════════════════════════════════════
-// SYNC UI
+// SYNC
 // ═══════════════════════════════════════════════════════════════════
 function setSyncStatus(s) {
   const dot = document.getElementById('sync-dot');
@@ -936,19 +1028,15 @@ function setSyncStatus(s) {
   dot.className = 'sync-dot' + (s==='syncing'?' syncing':s==='error'?' error':'');
   lbl.textContent = s==='syncing' ? 'salvando...' : s==='error' ? 'erro' : sbUser ? '☁️ nuvem' : 'local';
 }
-
-// ═══════════════════════════════════════════════════════════════════
-// CLOUD LOAD / SAVE
-// ═══════════════════════════════════════════════════════════════════
 async function cloudLoad() {
   if (!sb || !sbUser) return false;
   const { data, error } = await sb.from('progress').select('*').eq('user_id', sbUser.id).single();
   if (error || !data) return false;
   sbRowId = data.id;
   if (data.data) state = data.data;
+  ensureState();
   return true;
 }
-
 async function cloudSave() {
   if (!sb || !sbUser) return false;
   const payload = { user_id: sbUser.id, data: state, updated_at: new Date().toISOString() };
@@ -962,7 +1050,6 @@ async function cloudSave() {
   }
   return true;
 }
-
 function scheduleSave() {
   setSyncStatus('syncing');
   clearTimeout(saveTO);
@@ -971,24 +1058,15 @@ function scheduleSave() {
     if (sbUser) {
       try { await cloudSave(); setSyncStatus('saved'); }
       catch(e) { console.error(e); setSyncStatus('error'); }
-    } else {
-      setSyncStatus('saved');
-    }
+    } else { setSyncStatus('saved'); }
   }, 900);
 }
 
-function getModProgress(id) {
-  if (!state.progress[id]) state.progress[id]={fc:{ok:0,hard:0,wrong:0,total:0},quiz:{correct:0,total:0},lesson:{read:[]}};
-  if (!state.progress[id].lesson) state.progress[id].lesson={read:[]}; // migrate old saved states
-  return state.progress[id];
-}
-
 // ═══════════════════════════════════════════════════════════════════
-// SETUP OVERLAY
+// SETUP OVERLAYS: SUPABASE / AUTH
 // ═══════════════════════════════════════════════════════════════════
 function showSetupOverlay() { document.getElementById('overlay-setup').classList.remove('hidden'); }
 function hideSetupOverlay() { document.getElementById('overlay-setup').classList.add('hidden'); }
-
 async function saveSupabaseConfig() {
   const url  = document.getElementById('setup-url').value.trim();
   const anon = document.getElementById('setup-anon').value.trim();
@@ -1002,143 +1080,269 @@ async function saveSupabaseConfig() {
   infoEl.style.display='block'; infoEl.textContent='Testando conexão...';
   try {
     initSupabase(url, anon);
-    // Validate by pinging the auth endpoint (doesn't need a table)
-    const { error: pingErr } = await sb.auth.getSession();
-    // getSession never throws — a network error would land in catch
-    // If we get here, the client is reachable
+    await sb.auth.getSession();
     lsSet(LS_URL, url); lsSet(LS_ANON, anon);
     infoEl.style.display='none';
     hideSetupOverlay();
     showAuthOverlay();
   } catch(e) {
-    infoEl.style.display='none';
-    sb = null; // reset so app doesn't try to use bad client
-    errEl.textContent='Erro de conexão. Verifique se a URL e a Anon Key estão corretas.';
+    infoEl.style.display='none'; sb = null;
+    errEl.textContent='Erro de conexão. Verifique a URL e a Anon Key.';
     errEl.style.display='block';
   }
 }
-
-function skipSetup() {
-  // Clear any stale Supabase config so we truly run without it
-  lsSet(LS_URL, ''); lsSet(LS_ANON, '');
-  sb = null;
-  hideSetupOverlay();
-}
-
+function skipSetup() { lsSet(LS_URL, ''); lsSet(LS_ANON, ''); sb = null; hideSetupOverlay(); }
 function clearAndSetup() {
-  // Wipe all saved Supabase config and go back to setup screen
-  lsSet(LS_URL, ''); lsSet(LS_ANON, '');
-  sb = null; sbUser = null;
-  hideAuthOverlay();
-  // Pre-clear inputs
-  const u = document.getElementById('setup-url');
-  const a = document.getElementById('setup-anon');
-  if(u) u.value = ''; if(a) a.value = '';
-  document.getElementById('setup-err').style.display='none';
-  document.getElementById('setup-info').style.display='none';
-  showSetupOverlay();
+  lsSet(LS_URL, ''); lsSet(LS_ANON, ''); sb = null; sbUser = null; sbRowId = null;
+  hideAuthOverlay(); showSetupOverlay();
 }
-
-// ═══════════════════════════════════════════════════════════════════
-// AUTH OVERLAY
-// ═══════════════════════════════════════════════════════════════════
-let authMode = 'login';
 function showAuthOverlay() { document.getElementById('overlay-auth').classList.remove('hidden'); }
 function hideAuthOverlay() { document.getElementById('overlay-auth').classList.add('hidden'); }
-
+let authMode='login';
 function switchAuthTab(mode) {
-  authMode = mode;
-  document.getElementById('tab-login').classList.toggle('active', mode==='login');
-  document.getElementById('tab-signup').classList.toggle('active', mode==='signup');
+  authMode=mode;
+  document.getElementById('tab-login').classList.toggle('active',mode==='login');
+  document.getElementById('tab-signup').classList.toggle('active',mode==='signup');
   document.getElementById('auth-title').textContent = mode==='login' ? 'Entrar na sua conta' : 'Criar sua conta';
   document.getElementById('auth-submit-btn').textContent = mode==='login' ? 'Entrar' : 'Criar conta';
   document.getElementById('auth-err').style.display='none';
   document.getElementById('auth-info').style.display='none';
 }
-
 async function submitAuth() {
   const email = document.getElementById('auth-email').value.trim();
-  const pass  = document.getElementById('auth-password').value;
-  const errEl  = document.getElementById('auth-err');
+  const pass = document.getElementById('auth-password').value;
+  const errEl = document.getElementById('auth-err');
   const infoEl = document.getElementById('auth-info');
-  const btn    = document.getElementById('auth-submit-btn');
   errEl.style.display='none'; infoEl.style.display='none';
-  if (!sb) {
-    errEl.textContent='⚠️ Supabase não configurado ainda. Feche esta janela, clique em ⚙️ no menu e configure o Supabase primeiro.';
-    errEl.style.display='block'; return;
-  }
-  if (!email || !pass) { errEl.textContent='Preencha e-mail e senha.'; errEl.style.display='block'; return; }
-  btn.disabled = true; btn.textContent = 'Aguarde...';
+  if (!email || pass.length<6) { errEl.textContent='Informe um e-mail válido e senha com 6+ caracteres.'; errEl.style.display='block'; return; }
   try {
-    let res;
-    if (authMode === 'login') {
-      res = await sb.auth.signInWithPassword({ email, password: pass });
+    if (authMode==='login') {
+      const { data, error } = await sb.auth.signInWithPassword({ email, password: pass });
+      if (error) throw error;
+      await onLogin(data.user);
     } else {
-      res = await sb.auth.signUp({ email, password: pass });
+      const { data, error } = await sb.auth.signUp({ email, password: pass });
+      if (error) throw error;
+      if (data.user && !data.session) {
+        infoEl.textContent='Conta criada! Verifique seu e-mail para confirmar antes de entrar.';
+        infoEl.style.display='block'; return;
+      }
+      await onLogin(data.user);
     }
-    if (res.error) throw res.error;
-    if (authMode === 'signup' && !res.data?.session) {
-      infoEl.textContent = '✅ Conta criada! Verifique seu e-mail para confirmar, depois faça login.';
-      infoEl.style.display='block';
-      btn.disabled=false; btn.textContent='Criar conta'; return;
-    }
-    sbUser = res.data.user || res.data.session?.user;
-    await onLogin();
-    hideAuthOverlay();
-  } catch(e) {
-    errEl.textContent = translateAuthError(e.message);
-    errEl.style.display='block';
-  }
-  btn.disabled=false; btn.textContent = authMode==='login'?'Entrar':'Criar conta';
+  } catch(e) { errEl.textContent = translateAuthError(e.message); errEl.style.display='block'; }
 }
-
 async function resetPassword() {
   const email = document.getElementById('auth-email').value.trim();
-  if (!email) { alert('Digite seu e-mail no campo acima primeiro.'); return; }
-  await sb.auth.resetPasswordForEmail(email);
-  document.getElementById('auth-info').textContent='E-mail de recuperação enviado! Verifique sua caixa.';
-  document.getElementById('auth-info').style.display='block';
+  const infoEl = document.getElementById('auth-info');
+  if (!email) { document.getElementById('auth-err').textContent='Digite seu e-mail primeiro.'; document.getElementById('auth-err').style.display='block'; return; }
+  try { await sb.auth.resetPasswordForEmail(email); infoEl.textContent='E-mail de recuperação enviado!'; infoEl.style.display='block'; }
+  catch(e) { document.getElementById('auth-err').textContent='Erro ao enviar e-mail.'; document.getElementById('auth-err').style.display='block'; }
 }
-
 function translateAuthError(msg) {
-  if (msg.includes('Invalid login')) return 'E-mail ou senha incorretos.';
-  if (msg.includes('already registered')) return 'Este e-mail já tem uma conta. Faça login.';
-  if (msg.includes('Password should be')) return 'Senha muito curta (mínimo 6 caracteres).';
-  if (msg.includes('Unable to validate')) return 'Link de confirmação inválido ou expirado.';
-  return msg;
+  if (/already registered/i.test(msg)) return 'Este e-mail já tem conta. Tente entrar.';
+  if (/invalid login/i.test(msg)) return 'E-mail ou senha incorretos.';
+  return 'Erro: ' + msg;
 }
-
-async function onLogin() {
-  await cloudLoad();
-  updateUserPill();
-  setSyncStatus('saved');
-  renderHome();
+async function onLogin(user) {
+  sbUser = user; hideAuthOverlay();
+  const had = await cloudLoad();
+  if (!had) { const local = lsGet(LS_LOCAL); if (local) { state = local; ensureState(); await cloudSave(); } }
+  updateUserPill(); setSyncStatus('saved'); showPage('home');
   document.getElementById('xp-display').textContent = `⚡ ${state.xp} XP`;
 }
-
 function updateUserPill() {
   const pill = document.getElementById('user-pill');
   if (sbUser) { pill.textContent = sbUser.email; pill.classList.remove('hidden'); }
   else pill.classList.add('hidden');
 }
+async function signOut() { if (sb) await sb.auth.signOut(); sbUser=null; sbRowId=null; updateUserPill(); setSyncStatus('saved'); renderSettings(); }
 
-async function signOut() {
-  if (!confirm('Sair da conta?')) return;
-  if (sb) await sb.auth.signOut();
-  sbUser = null; sbRowId = null;
-  updateUserPill();
-  setSyncStatus('saved');
-  renderSettings();
+// ═══════════════════════════════════════════════════════════════════
+// API KEY (IA)
+// ═══════════════════════════════════════════════════════════════════
+function showApiKeyOverlay(){ document.getElementById('apikey-input').value = apiKey; document.getElementById('overlay-apikey').classList.remove('hidden'); }
+function hideApiKeyOverlay(){ document.getElementById('overlay-apikey').classList.add('hidden'); }
+function saveApiKey(){
+  const v = document.getElementById('apikey-input').value.trim();
+  const errEl = document.getElementById('apikey-err');
+  if (!v.startsWith('sk-ant')) { errEl.textContent='Chave inválida — deve começar com sk-ant'; errEl.style.display='block'; return; }
+  apiKey = v; lsSet(LS_APIKEY, v); errEl.style.display='none';
+  hideApiKeyOverlay(); renderSettings();
+}
+function requireApiKey(){
+  if (!apiKey) { showApiKeyOverlay(); return false; }
+  return true;
+}
+async function callClaude(prompt, maxTokens){
+  const res = await fetch('https://api.anthropic.com/v1/messages', {
+    method:'POST',
+    headers:{
+      'Content-Type':'application/json',
+      'x-api-key': apiKey,
+      'anthropic-version':'2023-06-01',
+      'anthropic-dangerous-direct-browser-access':'true'
+    },
+    body: JSON.stringify({ model:'claude-sonnet-4-6', max_tokens: maxTokens||1500, messages:[{role:'user',content:prompt}] })
+  });
+  if (!res.ok) { const t = await res.text(); throw new Error('Falha na API ('+res.status+'): '+t.slice(0,200)); }
+  const data = await res.json();
+  return data.content?.[0]?.text || '';
+}
+function extractJson(text){
+  const m = text.match(/\{[\s\S]*\}|\[[\s\S]*\]/);
+  if (!m) throw new Error('Resposta da IA não trouxe JSON válido.');
+  return JSON.parse(m[0]);
 }
 
 // ═══════════════════════════════════════════════════════════════════
-// RENDER
+// PDI (módulos fixos)
+// ═══════════════════════════════════════════════════════════════════
+function getPdiProgress(id) {
+  if (!state.progress[id]) state.progress[id]={fc:{ok:0,hard:0,wrong:0,total:0},quiz:{correct:0,total:0},lesson:{read:[]}};
+  if (!state.progress[id].lesson) state.progress[id].lesson={read:[]};
+  return state.progress[id];
+}
+function openModule(id){
+  const m = PDI_MODULES.find(x=>x.id===id);
+  currentItem = { title:m.title, sub:`${m.num} · ${m.lessons.length} aulas · ${m.flashcards.length} flashcards · ${m.quiz.length} perguntas`, lessons:m.lessons, flashcards:m.flashcards, quiz:m.quiz, ready:true };
+  currentProgress = getPdiProgress(id);
+  backFn = ()=>showPage('home');
+  document.getElementById('mat-title-display').textContent = currentItem.title;
+  document.getElementById('mat-sub-display').textContent = currentItem.sub;
+  showPage('module');
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// CONCURSOS
+// ═══════════════════════════════════════════════════════════════════
+function getConcurso(id){ return state.concursos.find(c=>c.id===id); }
+function getMateria(concurso, matId){ return concurso.materias.find(m=>m.id===matId); }
+function getMatProgress(concurso, matId){
+  if (!concurso.progress) concurso.progress={};
+  if (!concurso.progress[matId]) concurso.progress[matId]={fc:{ok:0,hard:0,wrong:0,total:0},quiz:{correct:0,total:0},lesson:{read:[]}};
+  if (!concurso.progress[matId].lesson) concurso.progress[matId].lesson={read:[]};
+  return concurso.progress[matId];
+}
+function parseTopicLines(text){
+  return (text||'').split('\n').map(l=>l.replace(/^[-•\d.)\s]+/,'').trim()).filter(Boolean);
+}
+function parseEditalToMaterias(text){
+  const lines = parseTopicLines(text);
+  return lines.map(name => ({ id: uid(), name, topics: [], lesson:null, flashcards:null, quiz:null }));
+}
+
+function showConcursoOverlay(){
+  document.getElementById('nc-name').value='';
+  document.getElementById('nc-banca').value='';
+  document.getElementById('nc-data').value='';
+  document.getElementById('nc-edital').value='';
+  document.getElementById('nc-err').style.display='none';
+  document.getElementById('nc-info').style.display='none';
+  document.getElementById('overlay-concurso').classList.remove('hidden');
+}
+function hideConcursoOverlay(){ document.getElementById('overlay-concurso').classList.add('hidden'); }
+function readConcursoForm(){
+  const name = document.getElementById('nc-name').value.trim();
+  const banca = document.getElementById('nc-banca').value.trim();
+  const examDate = document.getElementById('nc-data').value;
+  const edital = document.getElementById('nc-edital').value.trim();
+  return {name,banca,examDate,edital};
+}
+function createConcurso(){
+  const {name,banca,examDate,edital} = readConcursoForm();
+  const errEl = document.getElementById('nc-err');
+  if (!name) { errEl.textContent='Digite o nome do concurso.'; errEl.style.display='block'; return; }
+  const materias = edital ? parseEditalToMaterias(edital) : [];
+  const c = { id: uid(), name, banca, examDate, cls: CARD_CLASSES[state.concursos.length % CARD_CLASSES.length], materias, progress:{} };
+  state.concursos.push(c);
+  scheduleSave(); hideConcursoOverlay(); showPage('home');
+}
+async function createConcursoWithAI(){
+  const {name,banca,examDate} = readConcursoForm();
+  const errEl = document.getElementById('nc-err');
+  const infoEl = document.getElementById('nc-info');
+  errEl.style.display='none';
+  if (!name) { errEl.textContent='Digite o nome do concurso.'; errEl.style.display='block'; return; }
+  if (!requireApiKey()) return;
+  infoEl.style.display='block'; infoEl.textContent='Consultando IA para sugerir as matérias do edital...';
+  try {
+    const prompt = `Você é especialista em concursos públicos brasileiros. Para o concurso "${name}"${banca?` (banca: ${banca})`:''}, sugira a estrutura típica de matérias e tópicos do edital, com base em editais anteriores desse tipo de concurso.
+Responda APENAS com JSON válido no formato:
+{"materias":[{"nome":"Língua Portuguesa","topicos":["Interpretação de texto","Concordância verbal e nominal", "..."]}, ...]}
+Inclua entre 6 e 12 matérias (conhecimentos básicos e específicos), cada uma com 4 a 10 tópicos. Não inclua texto fora do JSON.`;
+    const text = await callClaude(prompt, 3000);
+    const json = extractJson(text);
+    const materias = (json.materias||[]).map(m => ({ id: uid(), name: m.nome, topics: (m.topicos||[]).map(t=>({id:uid(),name:t})), lesson:null, flashcards:null, quiz:null }));
+    const c = { id: uid(), name, banca, examDate, cls: CARD_CLASSES[state.concursos.length % CARD_CLASSES.length], materias, progress:{}, aiSuggested:true };
+    state.concursos.push(c);
+    scheduleSave(); infoEl.style.display='none'; hideConcursoOverlay();
+    openConcurso(c.id);
+  } catch(e) {
+    infoEl.style.display='none'; errEl.textContent = 'Erro ao gerar sugestão: '+e.message;
+    errEl.style.display='block';
+  }
+}
+
+let currentConcursoId = null;
+async function suggestEditalForExisting(){
+  const c = getConcurso(currentConcursoId);
+  if (!c) return;
+  if (!requireApiKey()) return;
+  if (!confirm('Isso vai adicionar matérias sugeridas pela IA à lista atual (não remove as existentes). Continuar?')) return;
+  try {
+    const prompt = `Você é especialista em concursos públicos brasileiros. Para o concurso "${c.name}"${c.banca?` (banca: ${c.banca})`:''}, sugira a estrutura típica de matérias e tópicos do edital, com base em editais anteriores desse tipo de concurso.
+Responda APENAS com JSON válido no formato:
+{"materias":[{"nome":"Língua Portuguesa","topicos":["Interpretação de texto", "..."]}, ...]}
+Inclua entre 6 e 12 matérias, cada uma com 4 a 10 tópicos. Não repita matérias que já existem nesta lista: ${c.materias.map(m=>m.name).join(', ')||'(nenhuma)'}. Não inclua texto fora do JSON.`;
+    const text = await callClaude(prompt, 3000);
+    const json = extractJson(text);
+    const novas = (json.materias||[]).map(m => ({ id: uid(), name: m.nome, topics:(m.topicos||[]).map(t=>({id:uid(),name:t})), lesson:null, flashcards:null, quiz:null }));
+    c.materias.push(...novas);
+    scheduleSave(); renderConcursoMaterias();
+  } catch(e) { alert('Erro ao gerar sugestão: '+e.message); }
+}
+function deleteConcurso(id, ev){
+  if (ev) ev.stopPropagation();
+  if (!confirm('Excluir este concurso e todo o progresso associado? Não pode ser desfeito.')) return;
+  state.concursos = state.concursos.filter(c=>c.id!==id);
+  scheduleSave(); renderHome();
+}
+
+// MATÉRIAS
+function showMateriaOverlay(){
+  document.getElementById('nm-name').value='';
+  document.getElementById('nm-topics').value='';
+  document.getElementById('nm-err').style.display='none';
+  document.getElementById('overlay-materia').classList.remove('hidden');
+}
+function hideMateriaOverlay(){ document.getElementById('overlay-materia').classList.add('hidden'); }
+function createMateria(){
+  const c = getConcurso(currentConcursoId);
+  const name = document.getElementById('nm-name').value.trim();
+  const topicsText = document.getElementById('nm-topics').value;
+  const errEl = document.getElementById('nm-err');
+  if (!name) { errEl.textContent='Digite o nome da matéria.'; errEl.style.display='block'; return; }
+  const topics = parseTopicLines(topicsText).map(t=>({id:uid(),name:t}));
+  c.materias.push({ id: uid(), name, topics, lesson:null, flashcards:null, quiz:null });
+  scheduleSave(); hideMateriaOverlay(); renderConcursoMaterias();
+}
+function deleteMateria(matId, ev){
+  if (ev) ev.stopPropagation();
+  const c = getConcurso(currentConcursoId);
+  if (!confirm('Excluir esta matéria?')) return;
+  c.materias = c.materias.filter(m=>m.id!==matId);
+  delete c.progress?.[matId];
+  scheduleSave(); renderConcursoMaterias();
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// RENDER: HOME (PDI + Concursos)
 // ═══════════════════════════════════════════════════════════════════
 function renderHome() {
-  const grid = document.getElementById('modules-grid');
-  grid.innerHTML = '';
-  MODULES.forEach(m => {
-    const p = getModProgress(m.id);
+  const pdiGrid = document.getElementById('pdi-grid');
+  pdiGrid.innerHTML = '';
+  PDI_MODULES.forEach(m => {
+    const p = getPdiProgress(m.id);
     const pct = p.fc.total>0 ? Math.round(p.fc.ok/p.fc.total*100) : 0;
     const div = document.createElement('div');
     div.className = `mod-card ${m.cls}`;
@@ -1153,120 +1357,234 @@ function renderHome() {
       <div class="mod-progress-bar"><div class="mod-progress-fill" style="width:${pct}%"></div></div>`;
     div.querySelector('.start-btn').onclick = e=>{e.stopPropagation();openModule(m.id);};
     div.onclick = ()=>openModule(m.id);
+    pdiGrid.appendChild(div);
+  });
+
+  const grid = document.getElementById('concursos-grid');
+  grid.innerHTML = '';
+  state.concursos.forEach((c) => {
+    const totalMat = c.materias.length;
+    const progVals = Object.values(c.progress||{});
+    const lessonsRead = progVals.reduce((a,p)=>a+(p.lesson?.read.length||0),0);
+    const totalLessons = c.materias.reduce((a,m)=>a+(m.lesson?.sections.length||0),0);
+    const pct = totalLessons>0 ? Math.round(lessonsRead/totalLessons*100) : 0;
+    const div = document.createElement('div');
+    div.className = `mod-card ${c.cls||'c1'}`;
+    div.innerHTML = `
+      <div class="mod-num">${escapeHtml(c.banca||'Concurso')}${c.examDate?' · prova '+new Date(c.examDate+'T00:00:00').toLocaleDateString('pt-BR'):''}</div>
+      <div class="mod-title">${escapeHtml(c.name)}</div>
+      <div class="mod-desc">${totalMat} matéria${totalMat===1?'':'s'} cadastrada${totalMat===1?'':'s'}</div>
+      <div class="mod-footer">
+        <span class="mod-count">📖 ${totalLessons} aulas geradas</span>
+        <div style="display:flex;gap:6px">
+          <button class="materia-del" title="Excluir">🗑</button>
+          <button class="start-btn">Abrir →</button>
+        </div>
+      </div>
+      <div class="mod-progress-bar"><div class="mod-progress-fill" style="width:${pct}%"></div></div>`;
+    div.querySelector('.start-btn').onclick = e=>{e.stopPropagation();openConcurso(c.id);};
+    div.querySelector('.materia-del').onclick = e=>deleteConcurso(c.id,e);
+    div.onclick = ()=>openConcurso(c.id);
     grid.appendChild(div);
   });
+  const addDiv = document.createElement('div');
+  addDiv.className = 'mod-card add-card';
+  addDiv.innerHTML = `<div class="plus">+</div><div>Novo concurso</div>`;
+  addDiv.onclick = showConcursoOverlay;
+  grid.appendChild(addDiv);
 }
 
-function renderProgress() {
-  const el = document.getElementById('progress-content');
-  let html = '<div style="display:grid;gap:12px">';
-  MODULES.forEach(m => {
-    const p = getModProgress(m.id);
-    const fcPct = p.fc.total>0?Math.round(p.fc.ok/p.fc.total*100):0;
-    const qPct  = p.quiz.total>0?Math.round(p.quiz.correct/p.quiz.total*100):0;
-    const lessonPct = m.lessons.length>0?Math.round((p.lesson.read.length/m.lessons.length)*100):0;
-    html += `<div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px">
-      <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
-        <div style="font-size:11px;font-family:var(--mono);color:var(--muted)">${m.num}</div>
-        <div style="font-size:14px;font-weight:600;flex:1">${m.title}</div>
+// ═══════════════════════════════════════════════════════════════════
+// RENDER: CONCURSO PAGE (matérias + cronograma)
+// ═══════════════════════════════════════════════════════════════════
+let concursoTab = 'materias';
+function openConcurso(id){
+  currentConcursoId = id;
+  const c = getConcurso(id);
+  document.getElementById('cc-title').textContent = c.name;
+  document.getElementById('cc-sub').textContent = [c.banca, c.examDate?('Prova em '+new Date(c.examDate+'T00:00:00').toLocaleDateString('pt-BR')):null].filter(Boolean).join(' · ') || 'Organize suas matérias e seu cronograma de estudos';
+  setConcursoTab('materias');
+  showPage('concurso');
+}
+function setConcursoTab(tab){
+  concursoTab = tab;
+  document.getElementById('cc-tab-materias').classList.toggle('active', tab==='materias');
+  document.getElementById('cc-tab-crono').classList.toggle('active', tab==='crono');
+  document.getElementById('cc-materias-view').classList.toggle('hidden', tab!=='materias');
+  document.getElementById('cc-crono-view').classList.toggle('hidden', tab!=='crono');
+  if (tab==='materias') renderConcursoMaterias();
+  if (tab==='crono') renderCronogramaView();
+}
+function renderConcursoMaterias(){
+  const c = getConcurso(currentConcursoId);
+  const el = document.getElementById('cc-materias-view');
+  if (!c.materias.length) {
+    el.innerHTML = `<div class="crono-empty">Nenhuma matéria ainda. Cole o edital na criação do concurso, use "✦ Sugerir edital com IA" acima, ou adicione manualmente com "+ Matéria".</div>`;
+    return;
+  }
+  el.innerHTML = '';
+  c.materias.forEach(m => {
+    const ready = !!(m.lesson || m.flashcards || m.quiz);
+    const row = document.createElement('div');
+    row.className = 'materia-row';
+    row.innerHTML = `
+      <div class="materia-info">
+        <div class="materia-name">${escapeHtml(m.name)}</div>
+        <div class="materia-topics">${m.topics.length ? m.topics.map(t=>escapeHtml(t.name)).join(' · ') : 'Sem tópicos listados'}</div>
       </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">
-        <div style="background:var(--surface2);border-radius:8px;padding:10px">
-          <div style="font-size:10px;color:var(--muted);margin-bottom:4px">Material lido</div>
-          <div style="font-family:var(--mono);font-size:20px;font-weight:700;color:${lessonPct>=100?'var(--green)':'var(--accent2)'}">${lessonPct}%</div>
-          <div style="font-size:11px;color:var(--muted);margin-top:2px">${p.lesson.read.length}/${m.lessons.length} aulas</div>
-        </div>
-        <div style="background:var(--surface2);border-radius:8px;padding:10px">
-          <div style="font-size:10px;color:var(--muted);margin-bottom:4px">Flashcards revisados</div>
-          <div style="font-family:var(--mono);font-size:20px;font-weight:700;color:var(--accent)">${p.fc.total}</div>
-          <div style="font-size:11px;color:var(--muted);margin-top:2px">✅ ${p.fc.ok} sei · 😅 ${p.fc.hard} difícil</div>
-        </div>
-        <div style="background:var(--surface2);border-radius:8px;padding:10px">
-          <div style="font-size:10px;color:var(--muted);margin-bottom:4px">Quiz — acertos</div>
-          <div style="font-family:var(--mono);font-size:20px;font-weight:700;color:${qPct>=70?'var(--green)':qPct>=50?'var(--amber)':'var(--red)'}">${qPct}%</div>
-          <div style="font-size:11px;color:var(--muted);margin-top:2px">${p.quiz.correct}/${p.quiz.total} questões</div>
-        </div>
-      </div>
-    </div>`;
+      <span class="materia-badge ${ready?'ready':'pending'}">${ready?'✓ material pronto':'sem material'}</span>
+      <button class="materia-del" title="Excluir matéria">🗑</button>`;
+    row.querySelector('.materia-del').onclick = e=>deleteMateria(m.id,e);
+    row.onclick = ()=>openMateria(m.id);
+    el.appendChild(row);
   });
-  html += `<div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;display:flex;align-items:center;gap:16px">
-    <div style="font-size:36px;font-family:var(--mono);font-weight:700;color:var(--accent)">${state.xp}</div>
-    <div><div style="font-size:14px;font-weight:600">XP Total</div><div style="font-size:12px;color:var(--muted)">Continue estudando!</div></div>
-  </div></div>`;
-  el.innerHTML = html;
 }
 
-function renderSettings() {
-  const el = document.getElementById('settings-content');
-  const sbUrl  = lsGet(LS_URL,'');
-  const configured = !!sbUrl;
-  el.innerHTML = `<div class="settings-grid">
-    <div class="settings-card">
-      <h3>Conta</h3>
-      <p>Status: ${sbUser?`<span style="color:var(--green)">✅ Logado como ${sbUser.email}</span>`:`<span style="color:var(--amber)">⚠️ Sem login — progresso só neste navegador</span>`}</p>
-      ${sbUser
-        ? `<button class="btn btn-ghost" onclick="signOut()">Sair da conta</button>`
-        : `<button class="btn btn-primary" onclick="${configured?'showAuthOverlay()':'showSetupOverlay()'}">
-             ${configured?'Fazer login':'Configurar Supabase'}</button>`}
-    </div>
-    <div class="settings-card">
-      <h3>Supabase</h3>
-      <p>Status: ${configured?`<span style="color:var(--green)">✅ Configurado</span> <span style="color:var(--muted);font-family:var(--mono);font-size:11px">${sbUrl.replace('https://','').split('.')[0]}…</span>`:`<span style="color:var(--muted)">Não configurado</span>`}</p>
-      <button class="btn btn-ghost" style="font-size:12px" onclick="showSetupOverlay()">
-        ${configured?'Reconfigurar':'Configurar →'}
-      </button>
-    </div>
-    <div class="settings-card">
-      <h3>Dados locais</h3>
-      <p>XP: ${state.xp} · Módulos: ${Object.keys(state.progress).length} de ${MODULES.length}</p>
-      <button class="btn btn-danger" onclick="resetData()">Zerar progresso</button>
-    </div>
-    <div class="settings-card">
-      <h3>Publicar no GitHub Pages</h3>
-      <p style="line-height:1.8">
-        1. Crie conta em <a href="https://github.com" target="_blank" style="color:var(--accent)">github.com</a><br>
-        2. Novo repositório público → nome: <code>pdi-study</code><br>
-        3. Upload do arquivo HTML como <code>index.html</code><br>
-        4. Settings → Pages → Branch: main → Save<br>
-        5. Acesse: <code>seuusuario.github.io/pdi-study</code>
-      </p>
-    </div>
-  </div>`;
+// CRONOGRAMA
+function renderCronogramaView(){
+  const c = getConcurso(currentConcursoId);
+  document.getElementById('crono-date').value = c.examDate || '';
+  const listEl = document.getElementById('crono-list');
+  if (c.cronograma && c.cronograma.length) renderCronogramaList();
+  else listEl.innerHTML = `<div class="crono-empty">Defina a data da prova e clique em "Gerar cronograma" para distribuir os tópicos de todas as matérias entre hoje e a prova.</div>`;
 }
-
-function resetData() {
-  if (!confirm('Zerar todo o progresso? Não pode ser desfeito.')) return;
-  state = {xp:0,progress:{}};
+function generateCronograma(){
+  const c = getConcurso(currentConcursoId);
+  const dateStr = document.getElementById('crono-date').value;
+  if (!dateStr) { alert('Escolha a data da prova.'); return; }
+  c.examDate = dateStr;
+  const examDate = new Date(dateStr+'T00:00:00');
+  const today = new Date(); today.setHours(0,0,0,0);
+  const daysLeft = Math.max(1, Math.round((examDate-today)/86400000));
+  let items = [];
+  c.materias.forEach(m => {
+    if (m.topics.length) m.topics.forEach(t => items.push({materia:m.name, topic:t.name, id:m.id+'_'+t.id}));
+    else items.push({materia:m.name, topic:m.name, id:m.id+'_self'});
+  });
+  if (!items.length) { alert('Adicione matérias (e idealmente tópicos) antes de gerar o cronograma.'); return; }
+  const perDay = Math.max(1, Math.ceil(items.length/daysLeft));
+  const crono = [];
+  let idx=0;
+  for (let d=0; d<daysLeft && idx<items.length; d++) {
+    const date = new Date(today); date.setDate(date.getDate()+d);
+    const dayItems = items.slice(idx, idx+perDay);
+    idx += perDay;
+    if (!dayItems.length) break;
+    crono.push({ date: date.toISOString().slice(0,10), items: dayItems.map(it=>({...it, done:false})) });
+  }
+  c.cronograma = crono;
   scheduleSave();
-  document.getElementById('xp-display').textContent='⚡ 0 XP';
-  renderHome();
+  renderCronogramaList();
+}
+function renderCronogramaList(){
+  const c = getConcurso(currentConcursoId);
+  const el = document.getElementById('crono-list');
+  el.innerHTML='';
+  c.cronograma.forEach((day, di) => {
+    const div = document.createElement('div');
+    div.className = 'crono-day';
+    const dateLabel = new Date(day.date+'T00:00:00').toLocaleDateString('pt-BR',{weekday:'short', day:'2-digit', month:'2-digit'});
+    div.innerHTML = `<div class="crono-date">${dateLabel}</div>` + day.items.map((it,ii)=>`
+      <label class="crono-item ${it.done?'checked':''}">
+        <input type="checkbox" ${it.done?'checked':''} onchange="toggleCronoItem(${di},${ii})">
+        <span>${escapeHtml(it.topic)}</span>
+        <span class="crono-mat">${escapeHtml(it.materia)}</span>
+      </label>`).join('');
+    el.appendChild(div);
+  });
+}
+function toggleCronoItem(di, ii){
+  const c = getConcurso(currentConcursoId);
+  const it = c.cronograma[di].items[ii];
+  it.done = !it.done;
+  if (it.done) addXP(2);
+  scheduleSave(); renderCronogramaList();
 }
 
 // ═══════════════════════════════════════════════════════════════════
-// NAVIGATION
+// AI: GERAR MATERIAL DE ESTUDO (lesson + flashcards + quiz) — CONCURSOS
 // ═══════════════════════════════════════════════════════════════════
-let currentMod=null, currentMode='lesson';
+let currentItem=null, currentProgress=null, backFn=null, currentMode='lesson';
+let currentMatRef=null;
+function openMateria(matId){
+  const c = getConcurso(currentConcursoId);
+  const m = getMateria(c, matId);
+  currentMatRef = m;
+  const ready = !!(m.lesson && m.flashcards && m.quiz);
+  currentItem = { title:m.name, sub:c.name, lessons: m.lesson?.sections||[], flashcards:m.flashcards||[], quiz:m.quiz||[], ready };
+  currentProgress = getMatProgress(c, m.id);
+  backFn = ()=>openConcurso(currentConcursoId);
+  document.getElementById('mat-title-display').textContent = currentItem.title;
+  document.getElementById('mat-sub-display').textContent = currentItem.sub;
+  showPage('module');
+}
+function goBack(){ if (backFn) backFn(); else showPage('home'); }
+function refreshMateriaView(){
+  document.getElementById('mat-empty').classList.toggle('hidden', currentItem.ready);
+  document.getElementById('mat-content').classList.toggle('hidden', !currentItem.ready);
+  if (currentItem.ready) setMode('lesson');
+}
+async function generateMateriaContent(){
+  if (!requireApiKey()) return;
+  const c = getConcurso(currentConcursoId);
+  const emptyEl = document.getElementById('mat-empty');
+  const btn = emptyEl.querySelector('button');
+  btn.disabled = true; btn.textContent = 'Gerando com IA...';
+  try {
+    const m = currentMatRef;
+    const topicsList = m.topics.length ? m.topics.map(t=>t.name).join(', ') : '(tópicos gerais da matéria, use seu conhecimento sobre o que costuma cair em concursos públicos)';
+    const prompt = `Você é professor especialista em preparar candidatos para o concurso "${c.name}"${c.banca?` (banca ${c.banca})`:''}, na matéria "${m.name}". Tópicos a cobrir: ${topicsList}.
+
+Gere material de estudo completo em português. Responda APENAS com JSON válido, sem texto fora do JSON, no formato:
+{
+  "lessons": [ {"title":"...", "content":"<p>...</p><h4>...</h4><p>...</p>"} ],
+  "flashcards": [ {"tag":"...", "q":"...", "a":"..."} ],
+  "quiz": [ {"q":"...", "opts":["...","...","...","..."], "correct":0, "exp":"..."} ]
+}
+Regras:
+- "lessons": 3 a 6 aulas, cada uma cobrindo um bloco coerente de tópicos, com "content" em HTML simples (apenas tags <p>, <h4>, <ul>, <li>, <strong>, <code>), texto didático e completo, no estilo de um bom professor de cursinho preparatório.
+- "flashcards": 8 a 12 cards objetivos de pergunta/resposta.
+- "quiz": 6 a 10 questões de múltipla escolha (4 alternativas cada), no estilo de provas de banca de concurso, com "correct" sendo o índice (0-based) da alternativa certa e "exp" uma explicação curta da resposta.
+- Foque no que realmente costuma ser cobrado em concursos públicos brasileiros para essa matéria. Não invente legislação inexistente.`;
+    const text = await callClaude(prompt, 8000);
+    const json = extractJson(text);
+    m.lesson = { sections: json.lessons||[] };
+    m.flashcards = json.flashcards||[];
+    m.quiz = json.quiz||[];
+    scheduleSave();
+    currentItem = { title:m.name, sub:c.name, lessons:m.lesson.sections, flashcards:m.flashcards, quiz:m.quiz, ready:true };
+    currentProgress = getMatProgress(c, m.id);
+    refreshMateriaView();
+  } catch(e) {
+    alert('Erro ao gerar material: '+e.message);
+  } finally {
+    btn.disabled=false; btn.textContent='✦ Gerar material de estudo com IA';
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// MODES (compartilhado entre PDI e Concursos via currentItem/currentProgress)
+// ═══════════════════════════════════════════════════════════════════
 function showPage(p){
-  ['home','module','progress','settings'].forEach(x=>{
+  ['home','concurso','module','progress','settings'].forEach(x=>{
     document.getElementById(`page-${x}`).classList.toggle('hidden',x!==p);
-    const t=document.querySelector(`.nav-tab[onclick="showPage('${x}')"]`);
-    if(t)t.classList.toggle('active',x===p);
+  });
+  const tabs=document.querySelectorAll('.nav-tab');
+  const map={home:0,progress:1,settings:2};
+  Object.keys(map).forEach(x=>{
+    if(tabs[map[x]]) tabs[map[x]].classList.toggle('active', x===p || (x==='home' && (p==='concurso'||p==='module')));
   });
   if(p==='home')renderHome();
+  if(p==='module' && currentItem){
+    document.getElementById('mat-empty').classList.toggle('hidden', currentItem.ready);
+    document.getElementById('mat-content').classList.toggle('hidden', !currentItem.ready);
+    if (currentItem.ready) setMode('lesson');
+  }
   if(p==='progress')renderProgress();
   if(p==='settings')renderSettings();
 }
-function openModule(id){
-  currentMod=MODULES.find(m=>m.id===id);
-  document.getElementById('mod-title-display').textContent=currentMod.title;
-  document.getElementById('mod-sub-display').textContent=`${currentMod.num} · ${currentMod.lessons.length} aulas · ${currentMod.flashcards.length} flashcards · ${currentMod.quiz.length} perguntas`;
-  showPage('module');setMode('lesson');
-}
 function goHome(){showPage('home');}
 
-// ═══════════════════════════════════════════════════════════════════
-// MODES
-// ═══════════════════════════════════════════════════════════════════
 function setMode(mode){
   currentMode=mode;
   document.getElementById('mode-lesson').classList.toggle('active',mode==='lesson');
@@ -1281,106 +1599,57 @@ function setMode(mode){
   if(mode==='quiz')startQuiz();
 }
 
-// ═══════════════════════════════════════════════════════════════════
-// LESSON / STUDY MATERIAL MODE
-// ═══════════════════════════════════════════════════════════════════
+// LESSON
 let lessonIndex=0;
-
-function startLesson(){
-  lessonIndex=0;
-  renderLessonTOC();
-  renderLessonArticle();
-}
-
-function getLessonReadKey(){
-  return `${currentMod.id}`;
-}
-
-function getLessonProgress(){
-  const p=getModProgress(currentMod.id);
-  if(!p.lesson) p.lesson={read:[]};
-  return p.lesson;
-}
-
+function startLesson(){ lessonIndex=0; renderLessonTOC(); renderLessonArticle(); }
 function renderLessonTOC(){
   const toc=document.getElementById('lesson-toc');
-  const lp=getLessonProgress();
+  const lp=currentProgress.lesson;
   toc.innerHTML='';
-  currentMod.lessons.forEach((l,i)=>{
+  currentItem.lessons.forEach((s,i)=>{
     const div=document.createElement('div');
     div.className='lesson-toc-item'+(i===lessonIndex?' active':'')+(lp.read.includes(i)?' read':'');
-    div.textContent=`${i+1}. ${l.title}`;
+    div.textContent=s.title;
     div.onclick=()=>{lessonIndex=i;renderLessonTOC();renderLessonArticle();};
     toc.appendChild(div);
   });
 }
-
 function renderLessonArticle(){
-  const lessons=currentMod.lessons;
-  const l=lessons[lessonIndex];
-  const article=document.getElementById('lesson-article');
-  article.innerHTML=`<h3>${l.title}</h3>${l.content}`;
-  document.getElementById('lesson-counter').textContent=`${lessonIndex+1} / ${lessons.length}`;
-  document.getElementById('lesson-prev').style.visibility=lessonIndex===0?'hidden':'visible';
-  document.getElementById('lesson-next').textContent=lessonIndex===lessons.length-1?'Concluir seção ✓':'Próxima →';
-
-  // mark as read + award XP once per lesson
-  const lp=getLessonProgress();
-  if(!lp.read.includes(lessonIndex)){
-    lp.read.push(lessonIndex);
-    addXP(8);
-    scheduleSave();
-  }
-  const pct=Math.round((lp.read.length/lessons.length)*100);
-  document.getElementById('lesson-progress-fill').style.width=pct+'%';
+  const sections=currentItem.lessons;
+  const s=sections[lessonIndex];
+  const art=document.getElementById('lesson-article');
+  art.innerHTML=`<h3>${escapeHtml(s.title)}</h3>${s.content}`;
+  const lp=currentProgress.lesson;
+  if(!lp.read.includes(lessonIndex)){ lp.read.push(lessonIndex); addXP(3); scheduleSave(); }
+  document.getElementById('lesson-progress-fill').style.width=`${Math.round((lp.read.length/sections.length)*100)}%`;
+  document.getElementById('lesson-counter').textContent=`${lessonIndex+1} / ${sections.length}`;
+  document.getElementById('lesson-prev').disabled=lessonIndex===0;
+  document.getElementById('lesson-next').textContent=lessonIndex===sections.length-1?'Concluir ✓':'Próxima →';
   renderLessonTOC();
-
-  // scroll content to top
-  document.querySelector('.lesson-content-wrap').scrollTop=0;
-  window.scrollTo({top:0,behavior:'smooth'});
 }
-
 function lessonNext(){
-  if(lessonIndex<currentMod.lessons.length-1){
-    lessonIndex++;
-    renderLessonArticle();
-  } else {
-    // finished all lessons in this module — small congrats via result-like flash
-    const article=document.getElementById('lesson-article');
-    article.innerHTML+=`<div style="margin-top:24px;padding:16px 20px;background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.3);border-radius:10px;font-size:13px;color:#86efac">
-      ✅ Você concluiu todo o material de estudo deste módulo! Agora reforce com os <strong>Flashcards</strong> e teste seu conhecimento no <strong>Quiz</strong>.
-    </div>`;
-  }
+  const sections=currentItem.lessons;
+  if(lessonIndex<sections.length-1){lessonIndex++;renderLessonArticle();}
+  else goBack();
 }
+function lessonPrev(){ if(lessonIndex>0){lessonIndex--;renderLessonArticle();} }
 
-function lessonPrev(){
-  if(lessonIndex>0){
-    lessonIndex--;
-    renderLessonArticle();
-  }
-}
-
-// ═══════════════════════════════════════════════════════════════════
 // FLASHCARDS
-// ═══════════════════════════════════════════════════════════════════
-let fcIndex=0,fcFlipped=false;
+let fcIndex=0, fcFlipped=false;
 function startFlashcards(){fcIndex=0;renderCard();}
 function renderCard(){
-  const cards=currentMod.flashcards;
-  if(fcIndex>=cards.length){showResult('flashcard');return;}
-  const c=cards[fcIndex];
+  const cards=currentItem.flashcards;
+  const card=cards[fcIndex];
   fcFlipped=false;
   document.getElementById('fc-card').classList.remove('flipped');
-  document.getElementById('fc-tag').textContent=c.tag;
-  document.getElementById('fc-tag-back').textContent=c.tag;
-  document.getElementById('fc-question').textContent=c.q;
-  document.getElementById('fc-answer').innerHTML=c.a.replace(/\n/g,'<br>').replace(/`([^`]+)`/g,'<code>$1</code>');
-  document.getElementById('fc-hint').textContent=c.hint||'Clique para ver a resposta';
-  document.getElementById('fc-counter').textContent=`${fcIndex+1} / ${cards.length}`;
   document.getElementById('fc-controls-flip').classList.remove('hidden');
   document.getElementById('fc-controls-rate').classList.add('hidden');
   document.getElementById('ai-box').classList.add('hidden');
-  document.getElementById('ai-content').textContent='';
+  document.getElementById('fc-counter').textContent=`${fcIndex+1} / ${cards.length}`;
+  document.getElementById('fc-tag').textContent=card.tag||'';
+  document.getElementById('fc-tag-back').textContent=card.tag||'';
+  document.getElementById('fc-question').textContent=card.q;
+  document.getElementById('fc-answer').textContent=card.a;
 }
 function flipCard(){
   fcFlipped=!fcFlipped;
@@ -1389,192 +1658,263 @@ function flipCard(){
   document.getElementById('fc-controls-rate').classList.toggle('hidden',!fcFlipped);
 }
 function rateCard(rating){
-  const p=getModProgress(currentMod.id);
+  const p = currentProgress;
   p.fc.total++;
-  if(rating==='ok'){p.fc.ok++;addXP(5);}
-  else if(rating==='hard'){p.fc.hard++;addXP(2);}
-  else{p.fc.wrong++;addXP(1);}
-  scheduleSave();fcIndex++;renderCard();
+  if(rating==='ok'){p.fc.ok++;addXP(2);}
+  else if(rating==='hard'){p.fc.hard++;addXP(1);}
+  else p.fc.wrong++;
+  scheduleSave();
+  if(fcIndex<currentItem.flashcards.length-1){fcIndex++;renderCard();}
+  else showResult('flashcard');
 }
-
-// ═══════════════════════════════════════════════════════════════════
-// AI EXPLAIN
-// ═══════════════════════════════════════════════════════════════════
 async function askAI(){
-  const card=currentMod.flashcards[fcIndex];
+  if (!requireApiKey()) return;
+  const card=currentItem.flashcards[fcIndex];
   const box=document.getElementById('ai-box');
   const content=document.getElementById('ai-content');
   box.classList.remove('hidden');
   content.innerHTML='<div class="ai-loader"><div class="ai-dot"></div><div class="ai-dot"></div><div class="ai-dot"></div></div>';
   try{
-    const res=await fetch('https://api.anthropic.com/v1/messages',{
-      method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:1000,messages:[{role:'user',content:
-        `Você é tutor de TI para iniciante em suporte corporativo.\nMódulo: ${currentMod.title}\nConceito: ${card.tag}\nPergunta: ${card.q}\nResposta: ${card.a}\n\nExplique em português com:\n1. Analogia do dia a dia\n2. Por que importa no trabalho\n3. Exemplo prático (2-3 linhas)\nMáx 180 palavras.`
-      }]})
-    });
-    const data=await res.json();
-    const text=data.content?.[0]?.text||'Não foi possível gerar a explicação.';
-    content.innerHTML=text.replace(/\n\n/g,'</p><p style="margin-top:8px">').replace(/\n/g,'<br>').replace(/\*\*([^*]+)\*\*/g,'<strong>$1</strong>');
-  }catch(e){content.textContent='Erro ao conectar com a IA.';}
+    const text = await callClaude(`Você é tutor de estudos.\nTema: ${currentItem.title}\nConceito: ${card.tag}\nPergunta: ${card.q}\nResposta: ${card.a}\n\nExplique em português com:\n1. Uma analogia simples\n2. Por que isso importa na prática\n3. Um exemplo prático (2-3 linhas)\nMáx 180 palavras.`, 700);
+    content.innerHTML=(text||'Não foi possível gerar a explicação.').replace(/\n\n/g,'</p><p style="margin-top:8px">').replace(/\n/g,'<br>').replace(/\*\*([^*]+)\*\*/g,'<strong>$1</strong>');
+  }catch(e){content.textContent='Erro ao conectar com a IA: '+e.message;}
 }
 
-// ═══════════════════════════════════════════════════════════════════
 // QUIZ
-// ═══════════════════════════════════════════════════════════════════
 let quizIndex=0,quizCorrect=0,quizWrong=0,quizAnswered=false,quizOrder=[];
 function startQuiz(){
   quizIndex=0;quizCorrect=0;quizWrong=0;quizAnswered=false;
-  quizOrder=currentMod.quiz.map((_,i)=>i).sort(()=>Math.random()-.5);
+  quizOrder=currentItem.quiz.map((_,i)=>i).sort(()=>Math.random()-.5);
   renderQuiz();
 }
 function renderQuiz(){
   if(quizIndex>=quizOrder.length){showResult('quiz');return;}
-  const q=currentMod.quiz[quizOrder[quizIndex]];
   quizAnswered=false;
+  const q=currentItem.quiz[quizOrder[quizIndex]];
+  document.getElementById('quiz-q').textContent=q.q;
+  const dots=document.getElementById('quiz-progress');
+  dots.innerHTML='';
+  quizOrder.forEach((_,i)=>{
+    const d=document.createElement('div');
+    d.className='qp-dot'+(i<quizIndex?' done':i===quizIndex?' current':'');
+    dots.appendChild(d);
+  });
+  const optsEl=document.getElementById('quiz-opts');
+  optsEl.innerHTML='';
+  q.opts.forEach((opt,i)=>{
+    const btn=document.createElement('button');
+    btn.className='quiz-opt';
+    btn.textContent=opt;
+    btn.onclick=()=>answerQuiz(i,q.correct,q.exp,btn,optsEl);
+    optsEl.appendChild(btn);
+  });
   document.getElementById('quiz-feedback').classList.add('hidden');
   document.getElementById('quiz-next').classList.add('hidden');
-  document.getElementById('quiz-progress').innerHTML=quizOrder.map((_,i)=>`<div class="qp-dot ${i<quizIndex?'done':i===quizIndex?'current':''}"></div>`).join('');
-  document.getElementById('quiz-q').textContent=q.q;
-  const opts=document.getElementById('quiz-opts');
-  opts.innerHTML='';
-  q.opts.map((o,i)=>({o,i})).sort(()=>Math.random()-.5).forEach(({o,i})=>{
-    const btn=document.createElement('button');
-    btn.className='quiz-opt';btn.textContent=o;
-    btn.onclick=()=>answerQuiz(i,q.correct,q.exp,btn,opts);
-    opts.appendChild(btn);
-  });
 }
 function answerQuiz(chosen,correct,exp,btn,opts){
-  if(quizAnswered)return;quizAnswered=true;
-  const ok=chosen===correct;
-  if(ok){quizCorrect++;addXP(10);}else{quizWrong++;addXP(2);}
-  Array.from(opts.children).forEach(b=>{
+  if(quizAnswered)return;
+  quizAnswered=true;
+  const p = currentProgress;
+  p.quiz.total++;
+  [...opts.children].forEach((b,i)=>{
     b.disabled=true;
-    const idx=currentMod.quiz[quizOrder[quizIndex]].opts.indexOf(b.textContent);
-    if(idx===correct)b.classList.add('correct');
-    else if(b===btn&&!ok)b.classList.add('wrong');
+    if(i===correct)b.classList.add('correct');
+    else if(i===chosen)b.classList.add('wrong');
   });
   const fb=document.getElementById('quiz-feedback');
-  fb.className=`quiz-feedback ${ok?'correct':'wrong'}`;
-  fb.innerHTML=`${ok?'✅ Correto!':'❌ Incorreto.'} ${exp}`;
   fb.classList.remove('hidden');
-  document.getElementById('quiz-next').classList.remove('hidden');
-  const p=getModProgress(currentMod.id);
-  p.quiz.total++;if(ok)p.quiz.correct++;
+  if(chosen===correct){
+    fb.className='quiz-feedback correct';fb.textContent='✅ Correto! '+(exp||'');
+    quizCorrect++;p.quiz.correct++;addXP(5);
+  }else{
+    fb.className='quiz-feedback wrong';fb.textContent='❌ Errado. '+(exp||'');
+    quizWrong++;
+  }
   scheduleSave();
+  document.getElementById('quiz-next').classList.remove('hidden');
 }
 function nextQuiz(){quizIndex++;renderQuiz();}
 
-// ═══════════════════════════════════════════════════════════════════
-// RESULT
-// ═══════════════════════════════════════════════════════════════════
 function showResult(mode){
-  ['flashcard-mode','quiz-mode'].forEach(x=>document.getElementById(x).classList.add('hidden'));
+  ['lesson-mode','flashcard-mode','quiz-mode'].forEach(id=>document.getElementById(id).classList.add('hidden'));
   document.getElementById('result-mode').classList.remove('hidden');
-  let emoji,title,sub,xpE;
+  let correct,wrong,total;
   if(mode==='flashcard'){
-    const p=getModProgress(currentMod.id);
-    const pct=p.fc.total>0?Math.round(p.fc.ok/p.fc.total*100):0;
-    emoji=pct>=70?'🎉':pct>=40?'💪':'📚';
-    title=pct>=70?'Muito bem!':pct>=40?'Bom começo!':'Continue praticando!';
-    sub='Você completou todos os flashcards do módulo';
-    document.getElementById('res-correct').textContent=p.fc.ok;
-    document.getElementById('res-wrong').textContent=p.fc.wrong;
-    document.getElementById('res-pct').textContent=pct+'%';
-    xpE=p.fc.ok*5+p.fc.hard*2+p.fc.wrong;
+    const p = currentProgress;
+    correct=p.fc.ok;wrong=p.fc.wrong;total=currentItem.flashcards.length;
   }else{
-    const tot=quizCorrect+quizWrong;
-    const pct=tot>0?Math.round(quizCorrect/tot*100):0;
-    emoji=pct>=80?'🏆':pct>=60?'✅':pct>=40?'💪':'📚';
-    title=pct>=80?'Excelente!':pct>=60?'Bom resultado!':pct>=40?'Continue treinando!':'Revise os flashcards!';
-    sub=pct>=60?'Você está progredindo bem!':'Volte aos flashcards para reforçar.';
-    document.getElementById('res-correct').textContent=quizCorrect;
-    document.getElementById('res-wrong').textContent=quizWrong;
-    document.getElementById('res-pct').textContent=pct+'%';
-    xpE=quizCorrect*10+quizWrong*2;
+    correct=quizCorrect;wrong=quizWrong;total=quizOrder.length;
   }
-  document.getElementById('result-emoji').textContent=emoji;
-  document.getElementById('result-title').textContent=title;
-  document.getElementById('result-sub').textContent=sub;
-  document.getElementById('result-xp').textContent=`+${xpE} XP ganhos`;
+  const pct=total>0?Math.round(correct/total*100):0;
+  document.getElementById('result-emoji').textContent = pct>=80?'🎉':pct>=50?'👍':'💪';
+  document.getElementById('result-title').textContent = pct>=80?'Mandou bem!':pct>=50?'Bom progresso':'Continue praticando';
+  document.getElementById('result-sub').textContent = `Você revisou "${currentItem.title}"`;
+  document.getElementById('res-correct').textContent=correct;
+  document.getElementById('res-wrong').textContent=wrong;
+  document.getElementById('res-pct').textContent=pct+'%';
+  document.getElementById('result-xp').textContent=`+${mode==='quiz'?correct*5:0} XP`;
 }
 
-// ═══════════════════════════════════════════════════════════════════
-// XP
-// ═══════════════════════════════════════════════════════════════════
 function addXP(n){
   state.xp+=n;
   document.getElementById('xp-display').textContent=`⚡ ${state.xp} XP`;
+  scheduleSave();
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// PROGRESS PAGE
+// ═══════════════════════════════════════════════════════════════════
+function renderProgress(){
+  const el=document.getElementById('progress-content');
+  let html='<div style="display:grid;gap:16px">';
+
+  html+=`<div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px">
+    <div style="font-size:14px;font-weight:700;margin-bottom:12px">📘 PDI</div>
+    <div style="display:grid;gap:8px">`;
+  PDI_MODULES.forEach(m=>{
+    const p=getPdiProgress(m.id);
+    const lessonPct=m.lessons.length>0?Math.round((p.lesson.read.length/m.lessons.length)*100):0;
+    const qPct=p.quiz.total>0?Math.round(p.quiz.correct/p.quiz.total*100):0;
+    html+=`<div style="background:var(--surface2);border-radius:8px;padding:10px 12px;display:grid;grid-template-columns:1fr auto auto auto;gap:10px;align-items:center">
+      <div style="font-size:12px;font-weight:600">${escapeHtml(m.title)}</div>
+      <div style="font-size:11px;color:var(--muted)">📖 ${lessonPct}%</div>
+      <div style="font-size:11px;color:var(--muted)">📇 ${p.fc.total}</div>
+      <div style="font-size:11px;color:${qPct>=70?'var(--green)':qPct>=50?'var(--amber)':'var(--muted)'}">🧠 ${qPct}%</div>
+    </div>`;
+  });
+  html+=`</div></div>`;
+
+  if (state.concursos.length) {
+    state.concursos.forEach(c=>{
+      html+=`<div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px">
+        <div style="font-size:14px;font-weight:700;margin-bottom:12px">🎯 ${escapeHtml(c.name)}</div>
+        <div style="display:grid;gap:8px">`;
+      if (!c.materias.length) html+=`<div style="font-size:12px;color:var(--muted)">Sem matérias cadastradas ainda.</div>`;
+      c.materias.forEach(m=>{
+        const p=getMatProgress(c,m.id);
+        const lessonTotal=m.lesson?.sections.length||0;
+        const lessonPct=lessonTotal>0?Math.round((p.lesson.read.length/lessonTotal)*100):0;
+        const qPct=p.quiz.total>0?Math.round(p.quiz.correct/p.quiz.total*100):0;
+        html+=`<div style="background:var(--surface2);border-radius:8px;padding:10px 12px;display:grid;grid-template-columns:1fr auto auto auto;gap:10px;align-items:center">
+          <div style="font-size:12px;font-weight:600">${escapeHtml(m.name)}</div>
+          <div style="font-size:11px;color:var(--muted)">📖 ${lessonPct}%</div>
+          <div style="font-size:11px;color:var(--muted)">📇 ${p.fc.total}</div>
+          <div style="font-size:11px;color:${qPct>=70?'var(--green)':qPct>=50?'var(--amber)':'var(--muted)'}">🧠 ${qPct}%</div>
+        </div>`;
+      });
+      html+=`</div></div>`;
+    });
+  }
+
+  html+=`<div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;display:flex;align-items:center;gap:16px">
+    <div style="font-size:36px;font-family:var(--mono);font-weight:700;color:var(--accent)">${state.xp}</div>
+    <div><div style="font-size:14px;font-weight:600">XP Total</div><div style="font-size:12px;color:var(--muted)">Continue estudando!</div></div>
+  </div></div>`;
+  el.innerHTML=html;
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// SETTINGS PAGE
+// ═══════════════════════════════════════════════════════════════════
+function renderSettings(){
+  const el=document.getElementById('settings-content');
+  const sbUrl=lsGet(LS_URL,'');
+  const configured=!!sbUrl;
+  el.innerHTML=`<div class="settings-grid">
+    <div class="settings-card">
+      <h3>Conta</h3>
+      <p>Status: ${sbUser?`<span style="color:var(--green)">✅ Logado como ${sbUser.email}</span>`:`<span style="color:var(--amber)">⚠️ Sem login — progresso só neste navegador</span>`}</p>
+      ${sbUser?`<button class="btn btn-ghost" onclick="signOut()">Sair da conta</button>`:`<button class="btn btn-primary" onclick="${configured?'showAuthOverlay()':'showSetupOverlay()'}">${configured?'Fazer login':'Configurar Supabase'}</button>`}
+    </div>
+    <div class="settings-card">
+      <h3>Supabase (sincronização)</h3>
+      <p>Status: ${configured?`<span style="color:var(--green)">✅ Configurado</span>`:`<span style="color:var(--muted)">Não configurado</span>`}</p>
+      <button class="btn btn-ghost" style="font-size:12px" onclick="showSetupOverlay()">${configured?'Reconfigurar':'Configurar →'}</button>
+    </div>
+    <div class="settings-card">
+      <h3>✦ IA (Anthropic)</h3>
+      <p>Usada para sugerir editais, gerar aulas/flashcards/quiz de concursos e explicar flashcards. Status: ${apiKey?`<span style="color:var(--green)">✅ Configurada</span>`:`<span style="color:var(--amber)">⚠️ Não configurada</span>`}</p>
+      <button class="btn btn-ai" style="font-size:12px" onclick="showApiKeyOverlay()">${apiKey?'Reconfigurar chave':'Configurar chave →'}</button>
+    </div>
+    <div class="settings-card">
+      <h3>Dados locais</h3>
+      <p>XP: ${state.xp} · Módulos PDI: ${PDI_MODULES.length} · Concursos: ${state.concursos.length}</p>
+      <button class="btn btn-danger" onclick="resetData()">Zerar todo o progresso</button>
+    </div>
+    <div class="settings-card">
+      <h3>Publicar no GitHub Pages</h3>
+      <p style="line-height:1.8">
+        1. Crie conta em <a href="https://github.com" target="_blank" style="color:var(--accent)">github.com</a><br>
+        2. Novo repositório público → nome: <code>estudos-study</code><br>
+        3. Upload do arquivo HTML como <code>index.html</code><br>
+        4. Settings → Pages → Branch: main → Save<br>
+        5. Acesse: <code>seuusuario.github.io/estudos-study</code>
+      </p>
+    </div>
+  </div>`;
+}
+function resetData(){
+  if(!confirm('Zerar TODO o progresso (PDI e concursos)? Não pode ser desfeito.'))return;
+  state={xp:0,progress:{},concursos:[]};
+  scheduleSave();
+  document.getElementById('xp-display').textContent='⚡ 0 XP';
+  renderHome();
 }
 
 // ═══════════════════════════════════════════════════════════════════
 // INIT
 // ═══════════════════════════════════════════════════════════════════
-async function init(){
-  const ls=document.getElementById('loading-screen');
-  const lm=document.getElementById('loading-msg');
-
-  // Restore saved Supabase config — validate it actually works before trusting it
-  const savedUrl  = lsGet(LS_URL,'');
-  const savedAnon = lsGet(LS_ANON,'');
-  let supabaseOk = false;
-
-  if(savedUrl && savedAnon){
-    try {
-      initSupabase(savedUrl, savedAnon);
-      // Quick reachability check — getSession never throws on network ok
-      const { error: pingErr } = await sb.auth.getSession().catch(()=>({error:'unreachable'}));
-      if(!pingErr || pingErr === 'unreachable'){
-        // Even an "unreachable" means wrong URL — we only proceed if no error
-        supabaseOk = !pingErr;
-      }
-      if(!supabaseOk){ sb = null; }
-    } catch(e){
-      sb = null;
+function migrateOldPdiKeys(){
+  // O app antigo (só PDI) usava as chaves pdi_sb_url / pdi_sb_anon / pdi_local_state.
+  // Se este navegador já tinha esses dados e as chaves novas (est_*) ainda não existem, copia automaticamente.
+  try {
+    if (lsGet(LS_URL) === null && localStorage.getItem('pdi_sb_url') !== null) {
+      lsSet(LS_URL, lsGet('pdi_sb_url',''));
+      lsSet(LS_ANON, lsGet('pdi_sb_anon',''));
     }
-  }
+    if (lsGet(LS_LOCAL) === null && localStorage.getItem('pdi_local_state') !== null) {
+      const oldState = lsGet('pdi_local_state');
+      if (oldState) {
+        // formato antigo: { xp, progress } — já bate com o novo state (que também tem "concursos")
+        lsSet(LS_LOCAL, { xp: oldState.xp||0, progress: oldState.progress||{}, concursos: [] });
+      }
+    }
+  } catch(e) { console.error('Falha ao migrar dados antigos do PDI', e); }
+}
 
-  // Check for existing session only if Supabase is reachable
-  if(sb && supabaseOk){
-    lm.textContent='Verificando sessão...';
-    try{
-      const { data } = await sb.auth.getSession();
-      if(data?.session?.user){
-        sbUser=data.session.user;
-        lm.textContent='Carregando progresso da nuvem...';
+async function init(){
+  const msg=document.getElementById('loading-msg');
+  migrateOldPdiKeys();
+  apiKey = lsGet(LS_APIKEY,'') || '';
+  const local = lsGet(LS_LOCAL);
+  if (local) { state = local; ensureState(); }
+
+  const sbUrl = lsGet(LS_URL);
+  const sbAnon = lsGet(LS_ANON);
+  if (sbUrl && sbAnon) {
+    msg.textContent='Conectando...';
+    try {
+      initSupabase(sbUrl, sbAnon);
+      const { data:{ session } } = await sb.auth.getSession();
+      if (session?.user) {
+        sbUser = session.user;
         await cloudLoad();
         updateUserPill();
+      } else {
+        showAuthOverlay();
       }
-    }catch(e){ console.warn('Session check failed',e); }
+    } catch(e){ console.error(e); }
+  } else if (sbUrl === null) {
+    showSetupOverlay();
   }
-
-  // Fallback to local
-  if(!sbUser){
-    const local=lsGet(LS_LOCAL);
-    if(local) state=local;
-  }
-
-  lm.textContent='Pronto!';
-  await new Promise(r=>setTimeout(r,500));
 
   document.getElementById('xp-display').textContent=`⚡ ${state.xp} XP`;
   setSyncStatus('saved');
-  renderHome();
+  showPage('home');
 
-  ls.style.opacity='0';
-  setTimeout(()=>ls.style.display='none',400);
-
-  // Show setup if Supabase not configured or failed validation
-  if(!savedUrl || !savedAnon || !supabaseOk){
-    setTimeout(showSetupOverlay, 700);
-  }
-  // Supabase ok but not logged in: show auth
-  else if(supabaseOk && !sbUser){
-    setTimeout(showAuthOverlay, 700);
-  }
+  document.getElementById('loading-screen').style.opacity='0';
+  setTimeout(()=>document.getElementById('loading-screen').style.display='none',400);
 }
-
 init();
 </script>
 </body>
