@@ -270,8 +270,9 @@ create policy "own data" on public.progress
     <div class="btn-row">
       <button class="btn btn-primary" id="auth-submit-btn" onclick="submitAuth()">Entrar</button>
     </div>
-    <div style="font-size:11px;color:var(--muted);margin-top:14px">
-      Esqueceu a senha? <span style="color:var(--accent);cursor:pointer" onclick="resetPassword()">Recuperar por e-mail</span>
+    <div style="font-size:11px;color:var(--muted);margin-top:14px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:6px">
+      <span>Esqueceu a senha? <span style="color:var(--accent);cursor:pointer" onclick="resetPassword()">Recuperar por e-mail</span></span>
+      <span style="color:var(--muted);cursor:pointer" onclick="clearAndSetup()">⚙️ Reconfigurar Supabase</span>
     </div>
   </div>
 </div>
@@ -633,6 +634,20 @@ function skipSetup() {
   lsSet(LS_URL, ''); lsSet(LS_ANON, '');
   sb = null;
   hideSetupOverlay();
+}
+
+function clearAndSetup() {
+  // Wipe all saved Supabase config and go back to setup screen
+  lsSet(LS_URL, ''); lsSet(LS_ANON, '');
+  sb = null; sbUser = null;
+  hideAuthOverlay();
+  // Pre-clear inputs
+  const u = document.getElementById('setup-url');
+  const a = document.getElementById('setup-anon');
+  if(u) u.value = ''; if(a) a.value = '';
+  document.getElementById('setup-err').style.display='none';
+  document.getElementById('setup-info').style.display='none';
+  showSetupOverlay();
 }
 
 // ═══════════════════════════════════════════════════════════════════
@@ -1023,13 +1038,28 @@ async function init(){
   const ls=document.getElementById('loading-screen');
   const lm=document.getElementById('loading-msg');
 
-  // Restore saved Supabase config
+  // Restore saved Supabase config — validate it actually works before trusting it
   const savedUrl  = lsGet(LS_URL,'');
   const savedAnon = lsGet(LS_ANON,'');
-  if(savedUrl && savedAnon){ initSupabase(savedUrl,savedAnon); }
+  let supabaseOk = false;
 
-  // Check for existing session
-  if(sb){
+  if(savedUrl && savedAnon){
+    try {
+      initSupabase(savedUrl, savedAnon);
+      // Quick reachability check — getSession never throws on network ok
+      const { error: pingErr } = await sb.auth.getSession().catch(()=>({error:'unreachable'}));
+      if(!pingErr || pingErr === 'unreachable'){
+        // Even an "unreachable" means wrong URL — we only proceed if no error
+        supabaseOk = !pingErr;
+      }
+      if(!supabaseOk){ sb = null; }
+    } catch(e){
+      sb = null;
+    }
+  }
+
+  // Check for existing session only if Supabase is reachable
+  if(sb && supabaseOk){
     lm.textContent='Verificando sessão...';
     try{
       const { data } = await sb.auth.getSession();
@@ -1058,12 +1088,12 @@ async function init(){
   ls.style.opacity='0';
   setTimeout(()=>ls.style.display='none',400);
 
-  // Always show setup if Supabase not configured (ignore skip flag)
-  if(!savedUrl || !sb){
+  // Show setup if Supabase not configured or failed validation
+  if(!savedUrl || !savedAnon || !supabaseOk){
     setTimeout(showSetupOverlay, 700);
   }
-  // Supabase configured AND client initialised, but not logged in: show auth
-  else if(savedUrl && sb && !sbUser){
+  // Supabase ok but not logged in: show auth
+  else if(supabaseOk && !sbUser){
     setTimeout(showAuthOverlay, 700);
   }
 }
