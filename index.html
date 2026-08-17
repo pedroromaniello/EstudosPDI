@@ -105,6 +105,33 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:1
 .mode-btn-title{font-size:13px;font-weight:600;color:var(--text)}
 .mode-btn-sub{font-size:11px;color:var(--muted);margin-top:2px}
 
+/* LESSON MODE */
+.lesson-layout{display:grid;grid-template-columns:200px 1fr;gap:20px;align-items:start}
+.lesson-toc{position:sticky;top:16px;display:flex;flex-direction:column;gap:4px}
+.lesson-toc-item{padding:9px 12px;border-radius:8px;font-size:12px;color:var(--muted);cursor:pointer;transition:all .15s;border:1px solid transparent;line-height:1.4}
+.lesson-toc-item:hover{background:var(--surface2);color:var(--text)}
+.lesson-toc-item.active{background:rgba(79,142,247,.12);border-color:rgba(79,142,247,.3);color:var(--accent);font-weight:600}
+.lesson-toc-item.read::before{content:'✓ ';color:var(--green)}
+.lesson-content-wrap{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:28px 32px;min-height:400px;display:flex;flex-direction:column}
+.lesson-progress-bar{height:3px;background:var(--border);border-radius:2px;margin-bottom:20px;overflow:hidden}
+.lesson-progress-fill{height:100%;background:var(--accent);border-radius:2px;transition:width .3s}
+.lesson-article{flex:1}
+.lesson-article h3{font-size:19px;font-weight:700;margin-bottom:16px;color:var(--text);line-height:1.35}
+.lesson-article h4{font-size:14px;font-weight:600;color:var(--accent);margin:20px 0 8px}
+.lesson-article p{font-size:14px;line-height:1.75;color:var(--text);margin-bottom:14px}
+.lesson-article ul,.lesson-article ol{margin-bottom:14px}
+.lesson-article li{font-size:14px;line-height:1.75;color:var(--text);margin-bottom:6px}
+.lesson-article code{font-family:var(--mono);font-size:12.5px;background:rgba(255,255,255,.08);padding:2px 6px;border-radius:4px;color:#93c5fd}
+.lesson-article pre{font-family:var(--mono);font-size:12px;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:14px 16px;overflow-x:auto;line-height:1.7;color:#93c5fd;margin:12px 0 16px;white-space:pre}
+.lesson-nav{display:flex;align-items:center;justify-content:space-between;margin-top:24px;padding-top:20px;border-top:1px solid var(--border)}
+.lesson-counter{font-family:var(--mono);font-size:11px;color:var(--muted)}
+@media(max-width:700px){
+  .lesson-layout{grid-template-columns:1fr}
+  .lesson-toc{position:static;flex-direction:row;overflow-x:auto;padding-bottom:6px}
+  .lesson-toc-item{white-space:nowrap}
+  .lesson-content-wrap{padding:20px 18px}
+}
+
 /* FLASHCARD */
 .flashcard-area{display:flex;flex-direction:column;align-items:center;gap:20px}
 .fc-counter{font-family:var(--mono);font-size:11px;color:var(--muted)}
@@ -312,7 +339,12 @@ create policy "own data" on public.progress
       </div>
     </div>
     <div class="mode-row">
-      <button class="mode-btn active" id="mode-fc" onclick="setMode('flashcard')">
+      <button class="mode-btn active" id="mode-lesson" onclick="setMode('lesson')">
+        <div class="mode-btn-icon">📖</div>
+        <div class="mode-btn-title">Material de Estudo</div>
+        <div class="mode-btn-sub">Aprenda a matéria com explicações completas</div>
+      </button>
+      <button class="mode-btn" id="mode-fc" onclick="setMode('flashcard')">
         <div class="mode-btn-icon">🃏</div>
         <div class="mode-btn-title">Flashcards</div>
         <div class="mode-btn-sub">Revise conceito por conceito</div>
@@ -324,8 +356,24 @@ create policy "own data" on public.progress
       </button>
     </div>
 
+    <!-- LESSON / STUDY MODE -->
+    <div id="lesson-mode">
+      <div class="lesson-layout">
+        <div class="lesson-toc" id="lesson-toc"></div>
+        <div class="lesson-content-wrap">
+          <div class="lesson-progress-bar"><div class="lesson-progress-fill" id="lesson-progress-fill"></div></div>
+          <div class="lesson-article" id="lesson-article"></div>
+          <div class="lesson-nav">
+            <button class="btn btn-ghost" id="lesson-prev" onclick="lessonPrev()">← Anterior</button>
+            <span class="lesson-counter" id="lesson-counter"></span>
+            <button class="btn btn-primary" id="lesson-next" onclick="lessonNext()">Próxima →</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- FLASHCARD MODE -->
-    <div id="flashcard-mode">
+    <div id="flashcard-mode" class="hidden">
       <div class="flashcard-area">
         <div class="fc-counter" id="fc-counter">1 / 10</div>
         <div class="fc-wrap" onclick="flipCard()">
@@ -431,7 +479,82 @@ const MODULES = [
       {q:'Qual FSMO Role emite blocos de IDs únicos para os DCs?',opts:['PDC Emulator','Schema Master','RID Master','Infrastructure Master'],correct:2,exp:'O RID Master distribui pools de RIDs garantindo que cada objeto tenha um SID único.'},
       {q:'O que acontece se o único DC de um domínio ficar offline?',opts:['AD replica para DNS','Usuários não conseguem se autenticar','DHCP assume','Workgroup assume'],correct:1,exp:'Sem um DC disponível, autenticação falha. Sempre tenha pelo menos 2 DCs por domínio.'},
       {q:'Qual ferramenta gerencia usuários e grupos graficamente no AD?',opts:['Server Manager','Active Directory Users and Computers (ADUC)','AD Sites and Services','Group Policy Management'],correct:1,exp:'O ADUC é o MMC snap-in principal para gerenciar objetos do AD.'},
-    ]
+    ],
+    lessons: [
+{title:"O que é o Active Directory e por que ele existe",content:`<p>Imagine uma empresa com 300 funcionários. Cada um precisa de um usuário para logar no computador, acessar a rede, imprimir, acessar pastas compartilhadas. Sem um sistema central, você teria que criar uma conta separada em cada computador — um pesadelo de gerenciar.</p>
+<p>O <strong>Active Directory Domain Services (AD DS)</strong> resolve isso: é um banco de dados centralizado que armazena todos os usuários, computadores, grupos e políticas da empresa. Quando um funcionário liga o computador e digita a senha, a máquina pergunta ao AD "essa pessoa existe e a senha está certa?" — e só libera o acesso se a resposta for sim.</p>
+<p>Esse conceito se chama <strong>domínio</strong>: um conjunto de computadores e usuários gerenciados centralmente, com regras de segurança compartilhadas. Todo domínio tem um nome, geralmente parecido com um site — por exemplo <code>empresa.local</code> ou <code>corp.empresa.com.br</code>.</p>
+<p>Por trás disso está o conceito de <strong>diretório</strong>: uma estrutura hierárquica, como uma árvore de pastas, onde cada "pasta" pode conter usuários, computadores, impressoras, grupos e outros objetos. Essa organização em árvore é o que dá nome ao "Active Directory" — um diretório ativo, que responde em tempo real a consultas de autenticação.</p>
+<h4>Por que isso importa no seu trabalho</h4>
+<p>No dia a dia de suporte, praticamente todo chamado de "não consigo acessar X" passa pelo AD: senha expirada, conta bloqueada, usuário sem permissão num grupo, política aplicada errada. Entender a estrutura do AD é a base para diagnosticar 80% dos problemas de acesso corporativo.</p>`},
+{title:"Domain Controllers: o coração do domínio",content:`<p>O <strong>Domain Controller (DC)</strong> é o servidor que efetivamente roda o AD DS. É nele que ficam armazenados o banco de dados de usuários, as políticas de segurança e as regras de autenticação.</p>
+<p>Um detalhe importante: diferente de muitos sistemas onde existe um servidor "principal" e réplicas "secundárias", no AD moderno (desde o Windows 2000) todos os DCs são, em teoria, iguais — qualquer um deles pode autenticar usuários e aceitar alterações. Esse modelo se chama <strong>Multi-Master Replication</strong>. Se você altera a senha de um usuário no DC1, essa mudança se propaga automaticamente para o DC2, DC3, etc.</p>
+<p>Por que ter mais de um DC? Redundância. Se o único DC de uma empresa cai, ninguém mais consegue logar — literalmente a empresa para. Por isso a prática recomendada é ter pelo menos 2 DCs por domínio, de preferência em locais físicos diferentes.</p>
+<h4>Como promover um servidor a Domain Controller</h4>
+<p>O processo, em resumo:</p>
+<ol style="padding-left:20px;line-height:1.9">
+<li>Instalar o Windows Server (Standard ou Datacenter)</li>
+<li>Instalar a role <strong>Active Directory Domain Services</strong> pelo Server Manager</li>
+<li>Executar o assistente de promoção (<code>dcpromo</code> nas versões antigas, hoje integrado ao Server Manager)</li>
+<li>Escolher: criar um domínio novo (primeira instalação) ou adicionar um DC a um domínio existente</li>
+<li>Definir o nome do domínio, nível funcional, e configurar o DNS (o AD depende totalmente do DNS)</li>
+</ol>
+<p>Depois de promovido, o servidor reinicia e passa a responder a requisições de autenticação na porta padrão do protocolo Kerberos (88) e LDAP (389).</p>
+<h4>Um detalhe que confunde iniciantes</h4>
+<p>Um DC não é "mais um servidor com o AD instalado" — ele se torna parte fundamental da infraestrutura de identidade. Desinstalar o AD de um DC exige um processo formal de "rebaixamento" (demote), senão você corrompe a replicação de todo o domínio.</p>`},
+{title:"Organizando o domínio: OUs, usuários e grupos",content:`<p>Depois que o domínio existe, o próximo passo é organizá-lo. É aqui que entram as <strong>Organizational Units (OUs)</strong> — containers que funcionam como pastas dentro do AD.</p>
+<p>Uma estrutura típica de empresa pode ser assim:</p>
+<pre>empresa.local
+├── OU=Matriz
+│   ├── OU=TI
+│   ├── OU=Financeiro
+│   └── OU=RH
+├── OU=Filial-SP
+└── OU=Filial-RJ</pre>
+<p>Cada OU pode conter usuários, computadores, grupos e até outras OUs dentro dela. A vantagem principal de organizar assim é poder <strong>delegar administração</strong> (dar permissão para o gerente de TI da filial-SP gerenciar só os usuários daquela filial) e <strong>aplicar políticas específicas</strong> (GPOs) só para quem está dentro daquela OU.</p>
+<h4>Usuários vs Grupos: a diferença que todo iniciante confunde</h4>
+<p>Um <strong>usuário</strong> representa uma pessoa (ou serviço) que precisa se autenticar. Um <strong>grupo</strong> é uma coleção de usuários (ou outros grupos) usada para simplificar a atribuição de permissões.</p>
+<p>Na prática: em vez de dar permissão de acesso à pasta "Financeiro" para cada um dos 15 funcionários individualmente, você cria um grupo <code>GG_Financeiro</code>, adiciona os 15 usuários nele, e dá permissão de acesso para o grupo. Quando entra um funcionário novo, você só adiciona ele no grupo — a permissão já vem junto.</p>
+<h4>Tipos de grupo</h4>
+<p>O AD tem dois tipos: <strong>grupos de segurança</strong> (usados para dar permissões de acesso) e <strong>grupos de distribuição</strong> (usados só para e-mail, sem função de segurança). No dia a dia de suporte, você vai trabalhar quase sempre com grupos de segurança.</p>
+<p>Também existem escopos de grupo — Domain Local, Global e Universal — que definem onde aquele grupo pode ser usado (dentro do domínio, na floresta toda, etc). Para ambientes de domínio único (o caso mais comum em empresas pequenas/médias), essa distinção importa menos no começo, mas vale entender para o exame AZ-800.</p>`},
+{title:"Floresta, árvore e domínio: a hierarquia completa",content:`<p>Empresas pequenas geralmente têm um domínio só. Mas empresas grandes, com múltiplas divisões ou após fusões e aquisições, podem ter uma estrutura mais complexa. Entender os três níveis ajuda a não se perder:</p>
+<p><strong>Domínio</strong> — a unidade básica, com seu próprio banco de usuários e políticas (ex: <code>empresa.local</code>).</p>
+<p><strong>Árvore</strong> — um conjunto de domínios que compartilham um namespace contíguo. Por exemplo, <code>empresa.local</code> e <code>filial.empresa.local</code> formam uma árvore, porque o segundo é "filho" do primeiro no nome.</p>
+<p><strong>Floresta</strong> — o nível mais alto. É o conjunto de uma ou mais árvores que compartilham o mesmo <strong>Schema</strong> (estrutura de dados) e o <strong>Global Catalog</strong> (índice de busca). A floresta é o limite máximo de segurança do AD — tudo dentro dela pode, potencialmente, ter algum nível de confiança entre si.</p>
+<h4>Global Catalog: o índice de tudo</h4>
+<p>Em uma floresta com múltiplos domínios, como você busca um usuário que está em outro domínio? É aí que entra o <strong>Global Catalog (GC)</strong> — um servidor (geralmente um DC configurado como GC) que mantém uma cópia parcial de todos os objetos de todos os domínios da floresta. Isso permite buscas rápidas cross-domain sem precisar consultar cada domínio individualmente.</p>
+<h4>Trust Relationships</h4>
+<p>Quando você tem múltiplos domínios (mesma floresta ou florestas diferentes), pode ser necessário que usuários de um domínio acessem recursos de outro. Isso é feito através de <strong>trusts</strong> — relações de confiança configuradas explicitamente. Dentro da mesma floresta, os trusts entre domínios são automáticos e transitivos. Entre florestas diferentes, você precisa configurar manualmente.</p>
+<h4>Por que isso raramente aparece no dia a dia — mas cai na prova</h4>
+<p>A maioria das empresas de porte pequeno/médio no Brasil opera com um único domínio. Mas o AZ-800 cobra bastante esse conceito de floresta/árvore, então vale entender a teoria mesmo que na prática você não mexa com isso constantemente.</p>`},
+{title:"FSMO Roles: as 5 funções especiais",content:`<p>Apesar do AD funcionar em modelo Multi-Master (qualquer DC pode aceitar alterações), existem 5 operações que só podem ser feitas por um DC específico por vez, para evitar conflitos. São as chamadas <strong>FSMO Roles</strong> (Flexible Single Master Operations).</p>
+<p>Três delas existem por domínio:</p>
+<ul style="padding-left:20px;line-height:1.9">
+<li><strong>PDC Emulator</strong> — sincroniza horário, processa mudanças de senha com prioridade e emula um controlador de domínio antigo para compatibilidade com sistemas legados.</li>
+<li><strong>RID Master</strong> — distribui blocos de RIDs (Relative IDs) para os outros DCs usarem ao criar novos objetos. Cada objeto do AD tem um SID único, e o RID é a parte final desse identificador.</li>
+<li><strong>Infrastructure Master</strong> — mantém referências corretas entre objetos de domínios diferentes (útil em ambientes multi-domínio).</li>
+</ul>
+<p>Duas existem por floresta (só um DC na floresta toda tem essas funções):</p>
+<ul style="padding-left:20px;line-height:1.9">
+<li><strong>Schema Master</strong> — controla alterações no Schema (a estrutura que define quais tipos de objetos e atributos existem).</li>
+<li><strong>Domain Naming Master</strong> — controla a adição e remoção de domínios na floresta.</li>
+</ul>
+<h4>Como isso te afeta na prática</h4>
+<p>Na maioria das empresas com um DC só (ou poucos DCs), todas as 5 roles ficam automaticamente no mesmo servidor, e você nunca precisa pensar nisso. O problema aparece quando esse DC fica indisponível permanentemente (falha de hardware, por exemplo) — nesse caso, é preciso "apreender" (seize) as roles manualmente em outro DC via PowerShell ou ntdsutil, senão certas operações administrativas ficam travadas.</p>
+<p>Comando para verificar quem tem cada role: <code>netdom query fsmo</code></p>`},
+{title:"Replicação, Sites e DNS: os bastidores que fazem tudo funcionar",content:`<p>Três conceitos que raramente aparecem em telas bonitas, mas que sustentam o funcionamento inteiro do AD.</p>
+<h4>Replicação</h4>
+<p>Quando você altera algo no AD (cria um usuário, muda uma senha), essa mudança precisa se propagar para todos os outros DCs. Isso acontece automaticamente através da <strong>replicação Multi-Master</strong>. Dentro do mesmo site físico, a replicação é rápida (a cada alteração, praticamente em tempo real). Entre sites diferentes, ela é agendada em intervalos (para não sobrecarregar links de rede mais lentos entre filiais).</p>
+<p>Ferramenta principal para monitorar: <code>repadmin</code>. Um comando simples para checar a saúde geral: <code>repadmin /replsummary</code></p>
+<h4>Sites</h4>
+<p>Um <strong>Site</strong> no AD representa uma localidade física com boa conectividade interna — tipicamente, uma filial ou um datacenter. Configurar Sites corretamente permite duas coisas importantes: clientes se autenticam no DC mais próximo fisicamente (mais rápido), e a replicação entre sites distantes é agendada de forma mais econômica em banda.</p>
+<p>Sem Sites configurados corretamente, um usuário numa filial no Rio poderia acabar autenticando contra um DC em São Paulo, gerando lentidão desnecessária.</p>
+<h4>DNS: a dependência mais crítica de todas</h4>
+<p>Este é o ponto que mais gera dor de cabeça em troubleshooting: <strong>o AD depende inteiramente do DNS para funcionar</strong>. Quando um computador quer se autenticar, ele não sabe de antemão qual é o IP do DC — ele pergunta ao DNS "onde está o DC do domínio empresa.local?", através de registros especiais chamados <strong>SRV records</strong>.</p>
+<p>Se o DNS estiver com problema — registro errado, serviço parado, servidor DNS errado configurado na placa de rede — o AD para de funcionar completamente, mesmo que o DC esteja saudável. Por isso, a regra de ouro do troubleshooting de AD é: <strong>sempre verifique o DNS primeiro</strong>.</p>
+<p>Todo DC deveria também ser um servidor DNS (prática recomendada), justamente para essa dependência ficar mais robusta.</p>`}
+]
   },
   {id:'m2',cls:'m2',num:'Mês 2',title:'PowerShell + GPO + LAPS',desc:'Scripts de automação, Group Policy Objects e gerenciamento de senhas locais',
     flashcards:[
@@ -450,7 +573,87 @@ const MODULES = [
       {q:'Qual a ordem correta de processamento das GPOs?',opts:['Site → Local → Domain → OU','Local → Site → Domain → OU','Domain → Site → Local → OU','OU → Domain → Site → Local'],correct:1,exp:'LSDOU: Local, Site, Domain, OU. A OU tem a última palavra.'},
       {q:'Onde o LAPS armazena a senha do administrador local?',opts:['Arquivo criptografado local','No AD, num atributo do objeto computador','Servidor separado','Registro do Windows'],correct:1,exp:'O Windows LAPS armazena no próprio objeto do computador no AD, no atributo msLAPS-Password.'},
       {q:'Qual comando converte uma string em SecureString?',opts:['Convert-Password','ConvertTo-SecureString "senha" -AsPlainText -Force','Set-SecurePassword','New-SecureString'],correct:1,exp:'ConvertTo-SecureString é obrigatório em cmdlets como New-ADUser, que exigem SecureString por segurança.'},
-    ]
+    ],
+    lessons: [
+{title:"PowerShell: por que é a ferramenta mais importante do seu trabalho",content:`<p>Se você atende 5 chamados de "criar usuário novo" por semana, fazendo isso manualmente pela interface gráfica (ADUC), gasta uns 3-5 minutos por usuário. Com um script PowerShell bem feito, você faz isso em segundos — e sem erros de digitação.</p>
+<p>O PowerShell é uma linguagem de script e ao mesmo tempo um shell de linha de comando, criado pela Microsoft para administração de sistemas Windows. Diferente do CMD antigo, o PowerShell trabalha com <strong>objetos</strong>, não só texto — o que significa que você pode manipular, filtrar e transformar dados de forma muito mais poderosa.</p>
+<h4>A lógica dos cmdlets</h4>
+<p>Comandos no PowerShell seguem o padrão <strong>Verbo-Substantivo</strong>: <code>Get-ADUser</code>, <code>New-ADUser</code>, <code>Set-ADUser</code>, <code>Remove-ADUser</code>. Uma vez que você entende essa lógica, fica fácil "adivinhar" comandos: se existe <code>Get-ADUser</code> para buscar usuários, provavelmente existe <code>Get-ADGroup</code> para buscar grupos, e assim por diante.</p>
+<p>Os verbos mais comuns que você vai usar constantemente:</p>
+<ul style="padding-left:20px;line-height:1.9">
+<li><code>Get-</code> — buscar/consultar informações</li>
+<li><code>New-</code> — criar algo novo</li>
+<li><code>Set-</code> — alterar uma propriedade existente</li>
+<li><code>Remove-</code> — excluir</li>
+<li><code>Add-</code> — adicionar (ex: um usuário a um grupo)</li>
+</ul>
+<h4>O módulo Active Directory</h4>
+<p>Para gerenciar o AD via PowerShell, você precisa instalar as <strong>RSAT Tools (Remote Server Administration Tools)</strong> no seu computador, que incluem o módulo <code>ActiveDirectory</code>. Depois de instalado, basta rodar <code>Import-Module ActiveDirectory</code> (em versões recentes do Windows, isso costuma carregar automaticamente).</p>
+<h4>O pipe: encadeando comandos</h4>
+<p>Um dos recursos mais poderosos do PowerShell é o operador pipe (<code>|</code>), que passa a saída de um comando como entrada do próximo. Por exemplo:</p>
+<pre>Get-ADUser -Filter * | Where-Object {$_.Enabled -eq $false}</pre>
+<p>Esse comando busca todos os usuários e depois filtra só os que estão desabilitados — útil para encontrar contas inativas que podem ser um risco de segurança.</p>`},
+{title:"Automatizando tarefas do dia a dia: criação de usuários",content:`<p>A tarefa mais comum de um analista de suporte é criar, modificar e desabilitar usuários. Vamos ver como isso funciona na prática.</p>
+<h4>Criar um usuário único</h4>
+<pre>New-ADUser -Name "João Silva" \`
+  -SamAccountName "joao.silva" \`
+  -UserPrincipalName "joao.silva@empresa.local" \`
+  -Path "OU=Usuarios,OU=TI,DC=empresa,DC=local" \`
+  -AccountPassword (ConvertTo-SecureString "Senha@123" -AsPlainText -Force) \`
+  -Enabled $true \`
+  -ChangePasswordAtLogon $true</pre>
+<p>Repare no parâmetro <code>-ChangePasswordAtLogon $true</code> — uma boa prática é sempre forçar o usuário a trocar a senha no primeiro login, já que a senha inicial normalmente é conhecida pelo TI.</p>
+<h4>O grande ganho: criação em massa via CSV</h4>
+<p>Imagine que o RH te manda uma planilha com 40 contratações do mês. Em vez de criar cada usuário manualmente, você usa um CSV como entrada:</p>
+<pre>Nome,Login,Departamento
+João Silva,joao.silva,TI
+Maria Santos,maria.santos,Financeiro
+Pedro Costa,pedro.costa,RH</pre>
+<p>E o script:</p>
+<pre>Import-Csv C:\\novos_usuarios.csv | ForEach-Object {
+  New-ADUser -Name $_.Nome \`
+    -SamAccountName $_.Login \`
+    -UserPrincipalName "$($_.Login)@empresa.local" \`
+    -Path "OU=$($_.Departamento),DC=empresa,DC=local" \`
+    -AccountPassword (ConvertTo-SecureString "MudarSenha@123" -AsPlainText -Force) \`
+    -Enabled $true \`
+    -ChangePasswordAtLogon $true
+}</pre>
+<p>Esse script lê cada linha do CSV e cria um usuário, colocando-o automaticamente na OU correta baseado na coluna Departamento. 40 usuários criados em segundos, sem erro de digitação.</p>
+<h4>Modificando usuários em massa</h4>
+<p>O mesmo princípio se aplica para alterações. Por exemplo, para desabilitar todos os usuários de um departamento que foi extinto:</p>
+<pre>Get-ADUser -Filter * -SearchBase "OU=DepartamentoExtinto,DC=empresa,DC=local" | Disable-ADAccount</pre>`},
+{title:"Group Policy Objects: controlando computadores em escala",content:`<p>Enquanto o PowerShell te dá controle programático sobre o AD, as <strong>Group Policy Objects (GPOs)</strong> permitem aplicar configurações automaticamente a muitos computadores e usuários de uma vez, sem precisar tocar em cada máquina individualmente.</p>
+<p>Uma GPO é essencialmente um conjunto de regras: "bloquear acesso ao Painel de Controle", "definir papel de parede padrão", "instalar um software automaticamente", "exigir senha complexa", "mapear uma unidade de rede no login". Depois de criada, você vincula essa GPO a uma OU, e todos os objetos dentro dessa OU recebem as configurações.</p>
+<h4>Onde as GPOs são processadas: Computer vs User Configuration</h4>
+<p>Toda GPO tem duas seções principais:</p>
+<ul style="padding-left:20px;line-height:1.9">
+<li><strong>Computer Configuration</strong> — aplicada quando o computador liga/reinicia, independente de quem loga nele</li>
+<li><strong>User Configuration</strong> — aplicada quando um usuário específico faz login, independente de qual computador ele usa</li>
+</ul>
+<p>Isso importa porque define o comportamento: uma configuração de segurança de rede (Computer) afeta a máquina sempre, enquanto uma configuração de wallpaper (User) segue o usuário entre diferentes computadores.</p>
+<h4>A ordem de processamento: LSDOU</h4>
+<p>Quando várias GPOs se aplicam ao mesmo objeto, a ordem de processamento é: <strong>Local → Site → Domain → OU</strong>. A última aplicada "ganha" em caso de conflito — ou seja, uma GPO vinculada à OU tem prioridade sobre uma vinculada ao domínio inteiro. Isso permite regras gerais no nível do domínio, com exceções específicas em OUs.</p>
+<h4>Testando e forçando GPOs</h4>
+<p>Por padrão, GPOs são reaplicadas automaticamente a cada 90 minutos (com uma variação aleatória de até 30 min para evitar que todos os computadores atualizem ao mesmo tempo). Durante testes, isso é inconveniente — por isso existe o comando:</p>
+<pre>gpupdate /force</pre>
+<p>Que força a reaplicação imediata. Para ver quais GPOs estão realmente ativas numa máquina, e diagnosticar por que uma configuração não está pegando:</p>
+<pre>gpresult /r</pre>
+<p>Ou, para um relatório visual completo em HTML:</p>
+<pre>gpresult /h relatorio.html</pre>`},
+{title:"LAPS: resolvendo o problema da senha de administrador local",content:`<p>Aqui está um cenário comum e perigoso: todos os computadores da empresa são configurados com a mesma senha de administrador local, definida na imagem padrão. Parece prático — mas é um risco de segurança enorme. Se um único computador for comprometido e essa senha vazar, o invasor tem acesso administrativo a <em>todos</em> os computadores da empresa.</p>
+<p>O <strong>Microsoft LAPS (Local Administrator Password Solution)</strong> resolve exatamente isso. Ele gera uma senha única, longa e aleatória para o administrador local de <em>cada</em> computador, rotaciona essa senha periodicamente, e armazena tudo de forma segura no Active Directory — acessível só por quem tem permissão explícita.</p>
+<h4>Como funciona na prática</h4>
+<p>O LAPS roda como um agente em cada máquina. Periodicamente (configurável, geralmente a cada 30 dias), ele gera uma nova senha aleatória, define ela como a senha do administrador local, e escreve essa senha de volta no atributo do objeto computador no AD.</p>
+<p>Se um técnico de suporte precisa acessar localmente um computador (por exemplo, para resolver um problema que exige acesso administrativo local), ele consulta a senha atual no AD — sem precisar saber uma senha "mestra" fixa, e sem que a mesma senha sirva para qualquer outro computador.</p>
+<h4>Windows LAPS moderno (integrado)</h4>
+<p>Nas versões mais recentes do Windows Server (2019+, e especialmente 2022/2025), o LAPS já vem integrado ao sistema operacional — não é mais preciso instalar um agente separado como nas versões antigas. Isso simplificou bastante a implementação.</p>
+<p>Para consultar a senha de um computador específico via PowerShell:</p>
+<pre>Get-LapsADPassword -Identity NOME-DO-COMPUTADOR -AsPlainText</pre>
+<p>Esse comando retorna a senha atual gerenciada pelo LAPS — mas só funciona se o usuário que está rodando o comando tiver permissão de leitura sobre o atributo que armazena a senha (por segurança, essa permissão deve ser bem restrita, dada apenas a quem realmente precisa).</p>
+<h4>Por que isso é relevante para o seu trabalho</h4>
+<p>Implementar LAPS é frequentemente uma das primeiras recomendações de segurança em qualquer auditoria de infraestrutura. Saber configurar e usar essa ferramenta é um diferencial importante para quem trabalha com suporte e segurança corporativa.</p>`}
+]
   },
   {id:'m3',cls:'m3',num:'Mês 3',title:'Imagem Windows — MDT e Sysprep',desc:'Criação de imagem corporativa com MDT, WDS e Sysprep — o projeto Equals',
     flashcards:[
@@ -469,7 +672,52 @@ const MODULES = [
       {q:'O que permite que um PC sem SO receba Windows pela rede?',opts:['MDT sozinho','DHCP + WDS (PXE boot)','Azure Arc','DNS Server'],correct:1,exp:'WDS fornece a imagem, mas requer DHCP para os clientes obterem IP e se comunicarem com o servidor.'},
       {q:'Onde ficam as regras de configuração automática do MDT?',opts:['CustomSettings.ini e Bootstrap.ini','Registro do Windows','Banco SQL obrigatório','Scripts PowerShell separados'],correct:0,exp:'CustomSettings.ini é o "cérebro" do MDT — define domínio, fuso horário, apps, etc.'},
       {q:'O que é uma Task Sequence no MDT?',opts:['Arquivo de log','Sequência de etapas automatizadas de instalação','Driver de rede PXE','Certificado digital'],correct:1,exp:'A Task Sequence orquestra tudo: formatar disco, aplicar SO, instalar drivers, apps, configurar e ingressar no domínio.'},
-    ]
+    ],
+    lessons: [
+{title:"O problema que o MDT resolve: padronização de imagens Windows",content:`<p>Imagine que sua empresa contrata 10 pessoas novas em um mês. Cada uma precisa de um notebook configurado do zero: Windows instalado, drivers corretos, Office, antivírus, VPN, todas as configurações de segurança da empresa, ingressado no domínio. Fazer isso manualmente, computador por computador, é lento e sujeito a erro — um técnico pode esquecer de instalar algo, configurar errado, ou deixar uma configuração de segurança de fora.</p>
+<p>A solução profissional é criar uma <strong>imagem de referência</strong>: um Windows já configurado exatamente do jeito que a empresa precisa, que pode ser replicado (deployado) em qualquer computador novo em poucos minutos, de forma idêntica e consistente.</p>
+<p>O <strong>Microsoft Deployment Toolkit (MDT)</strong> é a ferramenta gratuita da Microsoft para automatizar exatamente esse processo — desde a criação da imagem de referência até o deploy em massa via rede.</p>
+<h4>As peças do quebra-cabeça</h4>
+<p>Para o MDT funcionar, você precisa de três componentes instalados na ordem certa:</p>
+<ol style="padding-left:20px;line-height:1.9">
+<li><strong>Windows ADK (Assessment and Deployment Kit)</strong> — conjunto de ferramentas de deploy da Microsoft, incluindo o DISM (usado para manipular imagens WIM)</li>
+<li><strong>Windows PE Add-on</strong> — adiciona o Windows PE (uma versão mínima do Windows usada como "ambiente de boot" durante a instalação) ao ADK</li>
+<li><strong>MDT</strong> — a ferramenta de orquestração que usa os dois anteriores para criar e gerenciar o processo de deploy</li>
+</ol>
+<p>A ordem importa porque cada ferramenta depende da anterior. Instalar fora de ordem é a causa mais comum de "o MDT não funciona" em quem está aprendendo.</p>`},
+{title:"Construindo a imagem de referência, passo a passo",content:`<p>Vamos percorrer o processo completo, do início ao fim.</p>
+<h4>Passo 1: Instalar um Windows limpo numa VM</h4>
+<p>Comece com uma máquina virtual nova, instale o Windows do zero usando a ISO oficial. Não pule etapas de licenciamento — para ambientes corporativos reais, use as licenças de volume da empresa.</p>
+<h4>Passo 2: Configurar tudo que a empresa precisa</h4>
+<p>Instale os softwares padrão (Office, antivírus, leitor de PDF, cliente de VPN), aplique as configurações de sistema (fuso horário, idioma, política de energia), remova bloatware que não interessa, configure o papel de parede e temas padrão da empresa. Essa é a etapa mais demorada, mas só precisa ser feita uma vez — depois você só atualiza a imagem periodicamente.</p>
+<h4>Passo 3: Sysprep — generalizando a imagem</h4>
+<p>Aqui está o passo que mais gera confusão em quem está começando. Todo Windows instalado tem um <strong>SID (Security Identifier)</strong> único, além de outras informações específicas daquela instalação (nome do computador, drivers detectados). Se você simplesmente clonar esse Windows para outros computadores sem generalizar, todos eles teriam o <em>mesmo</em> SID — o que causa conflitos graves quando esses computadores tentam ingressar no domínio (o AD identifica objetos por SID único).</p>
+<p>O <strong>Sysprep</strong> remove essas informações específicas, "generalizando" a instalação. O comando típico:</p>
+<pre>sysprep /generalize /oobe /shutdown</pre>
+<p>Onde <code>/generalize</code> remove o SID e informações de hardware, <code>/oobe</code> configura o Windows para mostrar a tela de configuração inicial (Out-Of-Box Experience) na próxima inicialização, e <code>/shutdown</code> desliga a máquina ao terminar — pronta para ser capturada.</p>
+<h4>Passo 4: Capturar a imagem com o MDT</h4>
+<p>Com a VM generalizada e desligada, você usa o MDT (através do Deployment Workbench) para capturar essa instalação em um arquivo <strong>WIM (Windows Imaging Format)</strong>. Esse arquivo é a sua "imagem mestre" — um retrato congelado de tudo que foi configurado, pronto para ser replicado.</p>
+<h4>Passo 5: Testar antes de colocar em produção</h4>
+<p>Antes de usar a imagem em computadores reais de usuários, sempre teste fazendo deploy numa VM em branco. Confira se tudo instalou corretamente, se o computador consegue ingressar no domínio sem erro, se as configurações de segurança estão aplicadas.</p>`},
+{title:"Deploy em massa: WDS, Task Sequences e o Deployment Share",content:`<p>Com a imagem de referência pronta, o próximo desafio é: como instalar ela em dezenas de computadores de forma prática, sem precisar de um pendrive USB para cada um?</p>
+<h4>WDS: boot pela rede</h4>
+<p>O <strong>Windows Deployment Services (WDS)</strong> é uma role do Windows Server que permite que computadores <em>sem sistema operacional algum</em> liguem, façam boot pela rede (protocolo PXE — Preboot Execution Environment), encontrem o servidor WDS, e baixem automaticamente o ambiente de instalação.</p>
+<p>Para isso funcionar, é necessário ter <strong>DHCP</strong> configurado na mesma rede — porque o computador, ao ligar sem sistema operacional, ainda não tem endereço IP, e precisa de um para se comunicar com o servidor WDS.</p>
+<h4>Deployment Share: o repositório central do MDT</h4>
+<p>O <strong>Deployment Share</strong> é uma pasta compartilhada na rede, criada e gerenciada pelo MDT, que contém tudo que é necessário para o deploy: a imagem WIM capturada, drivers para diferentes modelos de hardware, pacotes de aplicativos, e os arquivos de configuração que orquestram o processo (<code>CustomSettings.ini</code> e <code>Bootstrap.ini</code>).</p>
+<h4>Task Sequence: a receita completa do deploy</h4>
+<p>Uma <strong>Task Sequence</strong> é uma sequência ordenada de passos automatizados que o MDT executa durante a instalação: formatar o disco, aplicar a imagem WIM, instalar drivers específicos daquele modelo de hardware, instalar aplicativos adicionais, aplicar configurações finais, e ingressar automaticamente no domínio da empresa — tudo sem intervenção manual, exceto talvez selecionar qual Task Sequence rodar no início.</p>
+<h4>Juntando tudo: o fluxo completo de um deploy real</h4>
+<ol style="padding-left:20px;line-height:1.9">
+<li>Técnico conecta um notebook novo na rede da empresa e liga, configurando o boot pela rede (PXE) na BIOS/UEFI</li>
+<li>O computador contata o WDS, que apresenta um menu de boot</li>
+<li>O ambiente Windows PE carrega, e o MDT assume o controle</li>
+<li>O técnico seleciona a Task Sequence apropriada (ex: "Notebook Padrão TI")</li>
+<li>O processo roda sozinho: formata, aplica a imagem, instala drivers e aplicativos, ingressa no domínio</li>
+<li>Em 20-40 minutos (dependendo da rede e do hardware), o computador está pronto, idêntico a todos os outros deployados com a mesma imagem</li>
+</ol>
+<p>Esse é o "projeto Equals" que sua liderança pediu: ter esse processo documentado e funcionando é exatamente o que padroniza e acelera a entrega de equipamentos novos na empresa.</p>`}
+]
   },
   {id:'m4',cls:'m4',num:'Mês 4',title:'Azure Arc e Entra Connect',desc:'Conectar infraestrutura local ao Azure e sincronizar identidades híbridas',
     flashcards:[
@@ -485,7 +733,46 @@ const MODULES = [
       {q:'O Entra Connect sincroniza identidades de onde para onde?',opts:['Azure para on-premises','AD local para Microsoft Entra ID (nuvem)','Entre dois domínios AD','Entre tenants Azure'],correct:1,exp:'Entra Connect sincroniza do AD local para o Entra ID na nuvem, permitindo identidade híbrida.'},
       {q:'Mesma senha no Windows e no Microsoft 365. Qual tecnologia?',opts:['Azure Backup','Entra Connect com Password Hash Sync','Azure Arc','Azure File Sync'],correct:1,exp:'Entra Connect com Password Hash Sync (PHS) sincroniza hashes de senhas do AD local para o Entra ID.'},
       {q:'Vantagem de Azure Monitor com servidores Arc?',opts:['Backup automático','Centraliza logs de servidores locais no painel Azure','Substitui o AD','Cria VMs locais pelo Azure'],correct:1,exp:'Com Arc, servidores locais enviam dados para o Azure Monitor, centralizando monitoramento híbrido em um painel.'},
-    ]
+    ],
+    lessons: [
+{title:"Por que conectar servidores locais ao Azure faz sentido",content:`<p>Muitas empresas têm uma mistura de infraestrutura: alguns servidores rodando localmente (on-premises), no próprio datacenter ou sala de servidores da empresa, e cada vez mais recursos na nuvem (Azure, Microsoft 365). Gerenciar essas duas realidades separadamente — um console para servidores locais, outro totalmente diferente para nuvem — é ineficiente.</p>
+<p>O <strong>Azure Arc</strong> resolve esse problema estendendo o gerenciamento do Azure para <em>fora</em> do Azure: servidores locais, VMs rodando em outras nuvens (AWS, Google Cloud), e até clusters Kubernetes locais podem aparecer no portal do Azure como se fossem recursos nativos da nuvem, mesmo continuando fisicamente onde sempre estiveram.</p>
+<h4>O que isso desbloqueia na prática</h4>
+<p>Depois que um servidor local está "conectado ao Arc", você ganha acesso a recursos que antes só existiam para recursos nativos do Azure:</p>
+<ul style="padding-left:20px;line-height:1.9">
+<li><strong>Azure Policy</strong> — auditar ou forçar configurações de conformidade (ex: verificar se o antivírus está ativo, se as atualizações estão em dia)</li>
+<li><strong>Azure Monitor</strong> — centralizar logs e métricas de servidores locais no mesmo painel dos recursos de nuvem</li>
+<li><strong>Microsoft Defender for Cloud</strong> — proteção de segurança unificada</li>
+<li><strong>Gerenciamento remoto</strong> — usar o Windows Admin Center pelo portal do Azure, sem precisar de VPN direta</li>
+</ul>
+<h4>Como conectar um servidor</h4>
+<p>O componente que faz essa "ponte" é o <strong>Connected Machine Agent</strong>, instalado diretamente no servidor. Depois de instalado e configurado, ele estabelece um heartbeat periódico (a cada ~5 minutos) com o Azure, mantendo o status do servidor atualizado no portal.</p>
+<p>No Windows Server 2025, esse processo ficou ainda mais simples: existe um assistente integrado na bandeja do sistema que guia a conexão sem precisar rodar scripts manualmente — embora o método tradicional (rodar um script PowerShell gerado pelo próprio portal do Azure) continue funcionando e é o mais usado em ambientes com muitos servidores.</p>`},
+{title:"Identidade híbrida: conectando o AD local com a nuvem",content:`<p>Se sua empresa usa Microsoft 365 (Teams, SharePoint, Outlook), esses serviços rodam na nuvem e usam o <strong>Microsoft Entra ID</strong> (o nome atual do que era chamado de Azure AD) para autenticação — um serviço de identidade separado do Active Directory local.</p>
+<p>Isso cria um problema: os funcionários já têm uma conta no AD local para logar no Windows. Vão precisar de uma segunda conta separada, com senha diferente, só para acessar o Microsoft 365? Isso seria péssimo para a experiência do usuário e para a segurança (mais senhas para gerenciar e vazarem).</p>
+<p>A solução é a <strong>identidade híbrida</strong>, implementada através do <strong>Microsoft Entra Connect</strong> — uma ferramenta que sincroniza automaticamente os usuários do AD local para o Entra ID na nuvem, mantendo os dois sistemas em sincronia.</p>
+<h4>Como funciona a sincronização</h4>
+<p>O Entra Connect roda como um serviço, geralmente instalado num servidor dedicado (não precisa ser um DC). Periodicamente, ele varre o AD local em busca de mudanças — usuários novos, senhas alteradas, contas desabilitadas — e replica essas mudanças para o Entra ID na nuvem.</p>
+<p>Existem diferentes métodos de sincronização de senha, sendo o mais comum o <strong>Password Hash Sync (PHS)</strong>: o Entra Connect sincroniza um hash da senha (não a senha em texto puro, por segurança) do AD local para o Entra ID. Isso permite que o usuário use a <em>mesma senha</em> tanto para logar no Windows quanto para acessar o Microsoft 365.</p>
+<h4>Single Sign-On: a experiência final para o usuário</h4>
+<p>Com identidade híbrida configurada corretamente (especialmente com o recurso de <strong>Seamless SSO</strong>), o usuário faz login uma única vez no Windows com sua conta do domínio, e a partir daí acessa automaticamente Teams, SharePoint, e outros apps do Microsoft 365 sem precisar digitar a senha de novo. Essa transparência é um dos maiores ganhos práticos de configurar identidade híbrida corretamente.</p>
+<h4>Um detalhe importante para troubleshooting</h4>
+<p>Quando um usuário reclama "mudei minha senha mas o Teams ainda pede a senha antiga", frequentemente o problema está no ciclo de sincronização do Entra Connect — por padrão, ele roda a cada 30 minutos, então pode haver um atraso entre a mudança no AD local e a propagação para a nuvem.</p>`},
+{title:"Recursos híbridos avançados: File Sync e SMB over QUIC",content:`<p>Além de identidade, a infraestrutura híbrida moderna do Windows Server também resolve outro problema clássico: acesso a arquivos armazenados localmente, de forma segura, para quem está fora do escritório.</p>
+<h4>Azure File Sync</h4>
+<p>Muitas empresas têm um <strong>file server</strong> local — um servidor Windows dedicado a armazenar e compartilhar arquivos entre os funcionários. O problema: esse servidor só é acessível de dentro da rede da empresa (ou via VPN), e se o servidor tiver algum problema físico, os arquivos podem ser perdidos.</p>
+<p>O <strong>Azure File Sync</strong> resolve isso sincronizando o conteúdo do file server local com o <strong>Azure Files</strong> na nuvem. Isso traz três benefícios práticos:</p>
+<ul style="padding-left:20px;line-height:1.9">
+<li><strong>Backup automático na nuvem</strong> — os arquivos ficam protegidos mesmo se o servidor local falhar</li>
+<li><strong>Acesso de qualquer lugar</strong> — através do Azure Files, é possível acessar os mesmos arquivos remotamente</li>
+<li><strong>Tiered storage (cloud tiering)</strong> — arquivos raramente acessados podem ficar armazenados só na nuvem, liberando espaço no servidor local, mas continuam aparecendo normalmente para o usuário (são baixados sob demanda quando alguém tenta abrir)</li>
+</ul>
+<h4>SMB over QUIC</h4>
+<p>Tradicionalmente, para acessar arquivos de um file server pela internet (fora do escritório), era necessário conectar numa VPN primeiro — um passo extra que atrapalha a produtividade e exige configuração de infraestrutura de VPN.</p>
+<p>O <strong>SMB over QUIC</strong>, disponível no Windows Server 2022 e 2025, resolve isso encapsulando o protocolo de compartilhamento de arquivos (SMB) dentro do protocolo QUIC — que roda sobre UDP e já é criptografado nativamente por padrão (usando TLS 1.3). Isso permite que um funcionário remoto acesse diretamente um compartilhamento de arquivos do escritório pela internet, de forma segura, sem VPN.</p>
+<h4>Por que isso importa para o exame AZ-800</h4>
+<p>Esses dois recursos aparecem com frequência nas questões do exame relacionadas a "Storage e File Services" e "Networking híbrido" — os domínios 4 e 5 do AZ-800, que juntos representam até 40% da prova.</p>`}
+]
   },
   {id:'m5',cls:'m5',num:'Mês 5',title:'Troubleshooting e Diagnóstico AD',desc:'Ferramentas de diagnóstico, resolução de problemas e documentação',
     flashcards:[
@@ -499,7 +786,52 @@ const MODULES = [
       {q:'Qual ferramenta executa testes de diagnóstico no Domain Controller?',opts:['repadmin','netlogon','dcdiag','gpresult'],correct:2,exp:'dcdiag roda múltiplos testes e reporta Pass/Fail, sendo a principal ferramenta de diagnóstico de DCs.'},
       {q:'DNS falhou. Qual o impacto no AD?',opts:['Nenhum','Usuários não localizam DCs para autenticação','Só replicação é afetada','LAPS para'],correct:1,exp:'O AD usa registros SRV no DNS para localizar DCs. Sem DNS, clientes não encontram DCs e autenticação falha.'},
       {q:'Qual comando verifica replicação entre todos os DCs?',opts:['dcdiag /test:dns','repadmin /replsummary','gpresult /r','netlogon /debug'],correct:1,exp:'repadmin /replsummary mostra status de replicação de todos os DCs, incluindo falhas e atrasos.'},
-    ]
+    ],
+    lessons: [
+{title:"A mentalidade certa para diagnosticar problemas de AD",content:`<p>Quando um usuário liga reclamando "não consigo acessar nada", o instinto de quem está começando é sair testando aleatoriamente — reiniciar o computador, verificar a senha, reiniciar de novo. Um profissional experiente segue um processo mais sistemático, eliminando possibilidades em ordem de probabilidade.</p>
+<h4>A regra de ouro: comece pelo DNS</h4>
+<p>Como você já viu no Módulo 1, o Active Directory depende inteiramente do DNS para funcionar — é assim que os clientes encontram os Domain Controllers. Na prática, uma proporção enorme dos problemas de "AD não funciona" na verdade são problemas de DNS mal configurado, e não do AD em si.</p>
+<p>Antes de qualquer outro diagnóstico, teste: <code>nslookup empresa.local</code> — isso deveria retornar o IP de um ou mais Domain Controllers. Se não retornar nada ou retornar um erro, você já achou a causa provável.</p>
+<h4>Isolando o problema: é o usuário, a máquina, ou o servidor?</h4>
+<p>Uma pergunta simples ajuda a direcionar o diagnóstico: o problema acontece só com esse usuário específico, ou qualquer usuário nessa máquina tem o mesmo problema? Se for só com um usuário específico, mesmo em máquinas diferentes, o problema provavelmente está na conta dele (senha, permissões, conta bloqueada). Se for qualquer usuário na mesma máquina, o problema está na máquina (secure channel quebrado, configuração de rede, DNS local errado). Se for em várias máquinas ao mesmo tempo, o problema está no servidor (DC fora do ar, replicação falhando).</p>`},
+{title:"As ferramentas essenciais: dcdiag, repadmin e Event Viewer",content:`<p>Três ferramentas cobrem a grande maioria dos cenários de troubleshooting de AD no dia a dia.</p>
+<h4>dcdiag: o check-up completo do Domain Controller</h4>
+<p>O <code>dcdiag</code> roda uma bateria inteira de testes automáticos num Domain Controller — conectividade de rede, saúde do DNS, replicação, integridade do Sysvol (pasta compartilhada que armazena GPOs), e vários outros serviços críticos. Cada teste retorna um simples "passed" ou "failed", facilitando identificar rapidamente onde está o problema.</p>
+<p>Uso básico, rodando todos os testes:</p>
+<pre>dcdiag /v</pre>
+<p>O parâmetro <code>/v</code> (verbose) mostra detalhes extras de cada teste — sem ele, a saída fica mais resumida e às vezes esconde informações úteis.</p>
+<p>Para testar só um aspecto específico, como replicação:</p>
+<pre>dcdiag /test:replications</pre>
+<h4>repadmin: monitorando e forçando replicação</h4>
+<p>Quando você suspeita que a replicação entre DCs não está funcionando corretamente (por exemplo, um usuário criado em um DC não aparece em outro), o <code>repadmin</code> é a ferramenta certa.</p>
+<p>Para ver um resumo rápido do status de replicação de todos os DCs:</p>
+<pre>repadmin /replsummary</pre>
+<p>Se esse resumo mostrar falhas, o próximo passo é investigar detalhadamente com:</p>
+<pre>repadmin /showrepl</pre>
+<p>E, se necessário, forçar a replicação imediatamente (útil durante testes ou correções emergenciais):</p>
+<pre>repadmin /syncall /force</pre>
+<h4>Event Viewer: onde os erros ficam registrados</h4>
+<p>Todo problema no AD normalmente deixa um rastro no <strong>Event Viewer</strong> (acessível via <code>eventvwr.msc</code>). Os logs mais relevantes para troubleshooting de AD são:</p>
+<ul style="padding-left:20px;line-height:1.9">
+<li><strong>Directory Service</strong> — erros específicos do AD DS (Event IDs na faixa 1000-1999 costumam indicar problemas críticos)</li>
+<li><strong>DNS Server</strong> — problemas de resolução de nomes</li>
+<li><strong>System</strong> — erros gerais de sistema que podem afetar o AD indiretamente</li>
+<li><strong>Security</strong> — tentativas de login (bem-sucedidas e falhas), úteis para investigar contas bloqueadas ou tentativas suspeitas de acesso</li>
+</ul>
+<p>Um hábito valioso: sempre que resolver um problema complexo, anote o Event ID relevante que encontrou. Com o tempo, você constrói um "dicionário mental" dos erros mais comuns no seu ambiente específico.</p>`},
+{title:"Netlogon e problemas de autenticação específicos de máquina",content:`<p>Um cenário frustrante e relativamente comum: um computador específico não consegue mais autenticar usuários no domínio, mesmo que o AD esteja saudável e outros computadores funcionem normalmente. Isso costuma indicar um problema de <strong>secure channel</strong> quebrado entre aquela máquina e o domínio.</p>
+<h4>O que é o secure channel</h4>
+<p>Quando um computador ingressa no domínio, é estabelecida uma relação de confiança entre a máquina e o AD, baseada numa senha de máquina (diferente da senha de qualquer usuário) que é trocada automaticamente a cada 30 dias por padrão. Se essa senha ficar dessincronizada — por exemplo, se a máquina foi restaurada de um backup antigo, ou clonada incorretamente sem passar pelo Sysprep — o secure channel quebra, e a máquina não consegue mais autenticar ninguém, mesmo com credenciais corretas.</p>
+<h4>Diagnosticando com o log do Netlogon</h4>
+<p>O arquivo <code>C:\\Windows\\debug\\netlogon.log</code> registra tentativas de autenticação e erros relacionados ao secure channel. Quando um usuário reclama que não consegue logar numa máquina específica (mas consegue em outras), esse é o primeiro lugar a verificar.</p>
+<h4>Resolvendo secure channel quebrado</h4>
+<p>O comando PowerShell que resolve a maioria desses casos:</p>
+<pre>Test-ComputerSecureChannel -Repair</pre>
+<p>Esse comando testa se o secure channel está saudável e, se não estiver, tenta repará-lo automaticamente (requer que a máquina consiga se comunicar com um DC, e que você tenha credenciais com permissão adequada).</p>
+<p>Se o reparo automático não funcionar, a solução mais confiável — embora mais trabalhosa — é remover o computador do domínio e ingressá-lo novamente, o que recria o relacionamento de confiança do zero.</p>
+<h4>Por que documentar isso importa</h4>
+<p>Esse é exatamente o tipo de conhecimento que vale a pena registrar no seu runbook de operações (que você vai construir no Mês 5 do seu PDI). Problemas de secure channel são recorrentes em qualquer ambiente corporativo, e ter o procedimento documentado economiza tempo significativo em chamados futuros.</p>`}
+]
   },
   {id:'m6',cls:'m6',num:'Mês 6',title:'Preparação para o exame AZ-800',desc:'Revisão dos temas do exame, estratégias de prova e simulados',
     flashcards:[
@@ -514,7 +846,35 @@ const MODULES = [
       {q:'Qual domínio tem maior peso no AZ-800?',opts:['VMs e containers','Deploy e gerenciar AD DS (30-35%)','Storage e File Services','Networking híbrido'],correct:1,exp:'AD DS tem 30-35% das questões. Os meses 1 e 2 do PDI são a base mais importante.'},
       {q:'O SMB over QUIC resolve qual problema?',opts:['Replicação do AD','Acesso a file servers remotamente sem VPN','Substituir DNS','Sincronizar usuários com Azure'],correct:1,exp:'SMB over QUIC encapsula SMB em UDP/QUIC, permitindo acesso a compartilhamentos pela internet sem VPN.'},
       {q:'Quantos exames para a certificação completa?',opts:['1 (AZ-800)','2 (AZ-800 + AZ-801)','3 exames','AZ-800 + AZ-900'],correct:1,exp:'São dois: AZ-800 (infraestrutura core) e AZ-801 (serviços avançados e segurança).'},
-    ]
+    ],
+    lessons: [
+{title:"Como o exame AZ-800 é estruturado e o que priorizar",content:`<p>O AZ-800 (Administering Windows Server Hybrid Core Infrastructure) avalia conhecimento prático de administração de servidores Windows em ambientes híbridos — ou seja, misturando infraestrutura local com recursos de nuvem Azure. É o primeiro dos dois exames necessários para a certificação Windows Server Hybrid Administrator Associate (o segundo é o AZ-801).</p>
+<h4>Os 5 domínios e seus pesos</h4>
+<p>A prova é dividida em cinco áreas temáticas, cada uma com um peso diferente na nota final:</p>
+<ol style="padding-left:20px;line-height:1.9">
+<li><strong>Deploy e gerenciar Active Directory Domain Services (30-35%)</strong> — de longe o maior peso. Cobre exatamente o conteúdo dos Módulos 1 e 2 do seu PDI: estrutura do AD, OUs, GPOs, replicação, FSMO.</li>
+<li><strong>Gerenciar Windows Servers em ambiente híbrido (10-15%)</strong> — Windows Admin Center, Azure Arc, atualizações híbridas.</li>
+<li><strong>Gerenciar máquinas virtuais e containers (15-20%)</strong> — Hyper-V, containers Windows, Azure VMs.</li>
+<li><strong>Implementar e gerenciar redes on-premises e híbridas (15-20%)</strong> — DNS, DHCP, VPN, SMB over QUIC.</li>
+<li><strong>Gerenciar storage e file services (15-20%)</strong> — File Server, Azure File Sync, Storage Spaces.</li>
+</ol>
+<p>Note que o primeiro domínio sozinho vale quase o mesmo que os outros quatro somados. Isso significa que, se seu tempo de estudo é limitado, dominar profundamente AD DS traz o maior retorno possível na nota final.</p>
+<h4>O formato da prova</h4>
+<p>A prova costuma ter entre 40-60 questões, com um tempo de aproximadamente 100-120 minutos (isso pode variar — sempre confira o formato atual no momento de agendar). O formato inclui múltipla escolha, questões de arrastar-e-soltar, e ocasionalmente cenários mais longos com múltiplas perguntas relacionadas a um mesmo caso.</p>`},
+{title:"Estratégia de estudo para quem está começando do zero",content:`<p>Preparar-se para uma certificação técnica quando você é iniciante exige uma estratégia diferente de quem já trabalha há anos com a tecnologia. Aqui está uma abordagem prática, testada, para maximizar seu aproveitamento no tempo disponível.</p>
+<h4>1. Priorize prática sobre memorização</h4>
+<p>É tentador tentar "decorar" definições e comandos. Mas o AZ-800 é uma prova de cenários — ela testa se você entende <em>quando</em> e <em>por que</em> usar cada ferramenta, não só o que ela faz. A melhor forma de internalizar isso é fazendo, no seu laboratório: quebrar coisas de propósito e consertá-las é uma das formas mais eficazes de aprendizado que existe.</p>
+<h4>2. Use o Practice Assessment oficial e gratuito</h4>
+<p>A Microsoft disponibiliza um simulado oficial gratuito (Practice Assessment) que usa questões no mesmo estilo e nível de dificuldade da prova real. Fazer esse simulado <em>antes</em> de sentir que está "pronto" é uma estratégia inteligente — ele revela exatamente quais áreas você precisa reforçar, evitando que você estude uniformemente tópicos que já domina.</p>
+<h4>3. Leia questões de cenário pensando no problema, não na tecnologia</h4>
+<p>Muitas questões da prova descrevem uma situação de negócio ("a empresa X precisa que os usuários da filial Y acessem recursos da matriz sem VPN") e pedem a solução técnica correta. A armadilha comum é tentar aplicar a tecnologia mais "impressionante" ou recentemente estudada, em vez de pensar qual solução resolve <em>especificamente</em> aquele problema com o menor custo/complexidade.</p>
+<h4>4. Não negligencie os domínios menores</h4>
+<p>É tentador focar 100% em AD DS por ter o maior peso, mas isso deixa 65-70% da prova vulnerável. Uma estratégia equilibrada é: domine profundamente AD DS, mas garanta um entendimento sólido (não superficial) dos outros quatro domínios.</p>
+<h4>5. Gerencie seu tempo durante a prova</h4>
+<p>Com um tempo limitado e dezenas de questões, é importante não travar em uma única pergunta difícil. Se não souber a resposta com confiança em ~90 segundos, marque sua melhor suposição, sinalize para revisão (a maioria das plataformas de exame permite isso), e continue — voltando no final se sobrar tempo.</p>
+<h4>Lembrete importante sobre prazos</h4>
+<p>O AZ-800 está programado para se aposentar em setembro de 2026. Dentro do seu plano de 6 meses, você tem tempo confortável — mas evite deixar o agendamento para a última semana antes da aposentadoria, por segurança contra imprevistos.</p>`}
+]
   }
 ];
 
@@ -590,7 +950,8 @@ function scheduleSave() {
 }
 
 function getModProgress(id) {
-  if (!state.progress[id]) state.progress[id]={fc:{ok:0,hard:0,wrong:0,total:0},quiz:{correct:0,total:0}};
+  if (!state.progress[id]) state.progress[id]={fc:{ok:0,hard:0,wrong:0,total:0},quiz:{correct:0,total:0},lesson:{read:[]}};
+  if (!state.progress[id].lesson) state.progress[id].lesson={read:[]}; // migrate old saved states
   return state.progress[id];
 }
 
@@ -758,7 +1119,7 @@ function renderHome() {
       <div class="mod-title">${m.title}</div>
       <div class="mod-desc">${m.desc}</div>
       <div class="mod-footer">
-        <span class="mod-count">📇 ${m.flashcards.length} cards · 🧠 ${m.quiz.length} quiz</span>
+        <span class="mod-count">📖 ${m.lessons.length} aulas · 📇 ${m.flashcards.length} cards · 🧠 ${m.quiz.length} quiz</span>
         <button class="start-btn">Estudar →</button>
       </div>
       <div class="mod-progress-bar"><div class="mod-progress-fill" style="width:${pct}%"></div></div>`;
@@ -775,12 +1136,18 @@ function renderProgress() {
     const p = getModProgress(m.id);
     const fcPct = p.fc.total>0?Math.round(p.fc.ok/p.fc.total*100):0;
     const qPct  = p.quiz.total>0?Math.round(p.quiz.correct/p.quiz.total*100):0;
+    const lessonPct = m.lessons.length>0?Math.round((p.lesson.read.length/m.lessons.length)*100):0;
     html += `<div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px">
       <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
         <div style="font-size:11px;font-family:var(--mono);color:var(--muted)">${m.num}</div>
         <div style="font-size:14px;font-weight:600;flex:1">${m.title}</div>
       </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">
+        <div style="background:var(--surface2);border-radius:8px;padding:10px">
+          <div style="font-size:10px;color:var(--muted);margin-bottom:4px">Material lido</div>
+          <div style="font-family:var(--mono);font-size:20px;font-weight:700;color:${lessonPct>=100?'var(--green)':'var(--accent2)'}">${lessonPct}%</div>
+          <div style="font-size:11px;color:var(--muted);margin-top:2px">${p.lesson.read.length}/${m.lessons.length} aulas</div>
+        </div>
         <div style="background:var(--surface2);border-radius:8px;padding:10px">
           <div style="font-size:10px;color:var(--muted);margin-bottom:4px">Flashcards revisados</div>
           <div style="font-family:var(--mono);font-size:20px;font-weight:700;color:var(--accent)">${p.fc.total}</div>
@@ -850,7 +1217,7 @@ function resetData() {
 // ═══════════════════════════════════════════════════════════════════
 // NAVIGATION
 // ═══════════════════════════════════════════════════════════════════
-let currentMod=null, currentMode='flashcard';
+let currentMod=null, currentMode='lesson';
 function showPage(p){
   ['home','module','progress','settings'].forEach(x=>{
     document.getElementById(`page-${x}`).classList.toggle('hidden',x!==p);
@@ -864,8 +1231,8 @@ function showPage(p){
 function openModule(id){
   currentMod=MODULES.find(m=>m.id===id);
   document.getElementById('mod-title-display').textContent=currentMod.title;
-  document.getElementById('mod-sub-display').textContent=`${currentMod.num} · ${currentMod.flashcards.length} flashcards · ${currentMod.quiz.length} perguntas`;
-  showPage('module');setMode('flashcard');
+  document.getElementById('mod-sub-display').textContent=`${currentMod.num} · ${currentMod.lessons.length} aulas · ${currentMod.flashcards.length} flashcards · ${currentMod.quiz.length} perguntas`;
+  showPage('module');setMode('lesson');
 }
 function goHome(){showPage('home');}
 
@@ -874,13 +1241,95 @@ function goHome(){showPage('home');}
 // ═══════════════════════════════════════════════════════════════════
 function setMode(mode){
   currentMode=mode;
+  document.getElementById('mode-lesson').classList.toggle('active',mode==='lesson');
   document.getElementById('mode-fc').classList.toggle('active',mode==='flashcard');
   document.getElementById('mode-quiz').classList.toggle('active',mode==='quiz');
+  document.getElementById('lesson-mode').classList.toggle('hidden',mode!=='lesson');
   document.getElementById('flashcard-mode').classList.toggle('hidden',mode!=='flashcard');
   document.getElementById('quiz-mode').classList.toggle('hidden',mode!=='quiz');
   document.getElementById('result-mode').classList.add('hidden');
+  if(mode==='lesson')startLesson();
   if(mode==='flashcard')startFlashcards();
   if(mode==='quiz')startQuiz();
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// LESSON / STUDY MATERIAL MODE
+// ═══════════════════════════════════════════════════════════════════
+let lessonIndex=0;
+
+function startLesson(){
+  lessonIndex=0;
+  renderLessonTOC();
+  renderLessonArticle();
+}
+
+function getLessonReadKey(){
+  return `${currentMod.id}`;
+}
+
+function getLessonProgress(){
+  const p=getModProgress(currentMod.id);
+  if(!p.lesson) p.lesson={read:[]};
+  return p.lesson;
+}
+
+function renderLessonTOC(){
+  const toc=document.getElementById('lesson-toc');
+  const lp=getLessonProgress();
+  toc.innerHTML='';
+  currentMod.lessons.forEach((l,i)=>{
+    const div=document.createElement('div');
+    div.className='lesson-toc-item'+(i===lessonIndex?' active':'')+(lp.read.includes(i)?' read':'');
+    div.textContent=`${i+1}. ${l.title}`;
+    div.onclick=()=>{lessonIndex=i;renderLessonTOC();renderLessonArticle();};
+    toc.appendChild(div);
+  });
+}
+
+function renderLessonArticle(){
+  const lessons=currentMod.lessons;
+  const l=lessons[lessonIndex];
+  const article=document.getElementById('lesson-article');
+  article.innerHTML=`<h3>${l.title}</h3>${l.content}`;
+  document.getElementById('lesson-counter').textContent=`${lessonIndex+1} / ${lessons.length}`;
+  document.getElementById('lesson-prev').style.visibility=lessonIndex===0?'hidden':'visible';
+  document.getElementById('lesson-next').textContent=lessonIndex===lessons.length-1?'Concluir seção ✓':'Próxima →';
+
+  // mark as read + award XP once per lesson
+  const lp=getLessonProgress();
+  if(!lp.read.includes(lessonIndex)){
+    lp.read.push(lessonIndex);
+    addXP(8);
+    scheduleSave();
+  }
+  const pct=Math.round((lp.read.length/lessons.length)*100);
+  document.getElementById('lesson-progress-fill').style.width=pct+'%';
+  renderLessonTOC();
+
+  // scroll content to top
+  document.querySelector('.lesson-content-wrap').scrollTop=0;
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function lessonNext(){
+  if(lessonIndex<currentMod.lessons.length-1){
+    lessonIndex++;
+    renderLessonArticle();
+  } else {
+    // finished all lessons in this module — small congrats via result-like flash
+    const article=document.getElementById('lesson-article');
+    article.innerHTML+=`<div style="margin-top:24px;padding:16px 20px;background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.3);border-radius:10px;font-size:13px;color:#86efac">
+      ✅ Você concluiu todo o material de estudo deste módulo! Agora reforce com os <strong>Flashcards</strong> e teste seu conhecimento no <strong>Quiz</strong>.
+    </div>`;
+  }
+}
+
+function lessonPrev(){
+  if(lessonIndex>0){
+    lessonIndex--;
+    renderLessonArticle();
+  }
 }
 
 // ═══════════════════════════════════════════════════════════════════
